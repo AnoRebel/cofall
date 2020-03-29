@@ -9,8 +9,8 @@ import ChatScreen from "./chatScreen";
 import SaveButton from "../utils/saveButton";
 import StatusBar from "./statusBar";
 
-const ENDPOINT = "http://127.0.0.1:5000";
-// const ENDPOINT = "https://cofall-signaling-server.herokuapp.com";
+// const ENDPOINT = "http://127.0.0.1:5000";
+const ENDPOINT = "https://cofall-signaling-server.herokuapp.com";
 const socket = io(ENDPOINT);
 let user;
 
