@@ -1,6 +1,7 @@
 {
   "name": "cofall",
-  "version": "0.1.0",
+  "description": "Code Collaboration in Realtime with chat feature",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.27",
@@ -31,6 +32,19 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anorebel/cofall.git"
+  },
+  "author": "AnoRebel <hacker4rebel@gmail.com> (https://www.hackeac.com/)",
+  "license": "MIT",
+  "keywords": [
+    "CoFall",
+    "socket.io",
+    "express",
+    "collaboration",
+    "realtime"
+  ],
   "eslintConfig": {
     "extends": "react-app"
   },
