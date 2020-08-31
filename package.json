@@ -62,7 +62,7 @@
   },
   "devDependencies": {
     "concurrently": "^5.3.0",
-    "eslint": "^6.6.0",
+    "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
     "jshint": "^2.12.0",
