@@ -1,6 +1,6 @@
 const notifier = require("node-notifier");
 
-const sendNotification = data => {
+const sendNotification = (user, data) => {
   // TODO: implement platform specific
   let notifyMsg;
   if (data.message.length >= 120) {

@@ -36,7 +36,7 @@ const ChatScreen = props => {
   }, []);
 
   const newMessage = data => {
-    let reply = sendNotification(data);
+    let reply = sendNotification(user, data);
     console.log(reply);
     messagesElement = document.querySelector("#messages");
 
