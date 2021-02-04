@@ -20,13 +20,13 @@ const Home = () => {
         setRoom={setRoom}
         show={show}
         onHide={() => {
-            sessionStorage.setItem("user", username);
-            if (username === ""){
-              setShow(true);
-            } else {
-              setShow(false);
-            }
-            history.push(`/rooms/${room}`);
+          sessionStorage.setItem("user", username);
+          if (username === "") {
+            setShow(true);
+          } else {
+            setShow(false);
+          }
+          history.push(`/rooms/${room}`);
         }}
       />
     </Container>

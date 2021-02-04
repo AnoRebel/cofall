@@ -35,7 +35,7 @@ let timeout;
 let mirror;
 
 const CodeScreen = props => {
-  const numPanels = 0;
+  let numPanels = 0;
   const panels = {};
 
   const timeoutFunction = () => {
@@ -115,7 +115,7 @@ const CodeScreen = props => {
       "Ctrl-K Z": cm => {
         cm.setOption("fullscreen", !cm.getOption("fullscreen"));
       },
-      "Esc": cm => {
+      Esc: cm => {
         if (cm.getOption("fullscreen")) cm.setOption("fullscreen", false);
       },
     },

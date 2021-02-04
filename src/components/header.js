@@ -60,12 +60,7 @@ const Header = props => {
           </span>
         </div>
       </OverlayTrigger>
-      <div
-        className={`ml-auto text-white ${
-          props.connected ? "connected" : "disconnected"
-        }`}
-      >
-      </div>
+      <div className={`ml-auto text-white ${props.connected ? "connected" : "disconnected"}`}></div>
     </Navbar>
   );
 };

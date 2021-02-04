@@ -133,7 +133,7 @@ const Colors = {
 
 Colors.random = () => {
   let result;
-  const count = 0;
+  let count = 0;
   for (let prop in this.names) if (Math.random() < 1 / ++count) result = prop;
   return result;
 };

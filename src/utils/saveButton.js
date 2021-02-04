@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "react-bootstrap";
 import FileSaver from "file-saver";
-import {fileExts as fileExtensions} from "./options";
+import { fileExts as fileExtensions } from "./options";
 
 const SaveButton = props => {
   const [text, setText] = useState(undefined);

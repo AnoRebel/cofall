@@ -25,13 +25,13 @@ const Room = () => {
   const [connected, setConnected] = useState(false);
   const [status, setStatus] = useState("none");
   const [isFull, setFull] = useState(false);
-  
+
   socket.on("load", () => sendCode());
 
   useEffect(() => {
-    user  = sessionStorage.getItem("user");
+    user = sessionStorage.getItem("user");
     setConnected(true);
-    socket.on('connect', () => {
+    socket.on("connect", () => {
       setConnected(socket.connected);
     });
     socket.emit("room", { room, user });
@@ -55,7 +55,7 @@ const Room = () => {
     setCode("");
     socket.emit("code", { code, room, typing, status: "none" });
   };
-  
+
   const sendCode = () => {
     socket.emit("send:code", { room, code });
   };
@@ -72,7 +72,7 @@ const Room = () => {
   };
 
   socket.on("code:mode_change", mode => setMode(mode));
-  
+
   useEffect(() => {
     socket.on("code:init", data => updateCodeInState(data));
     socket.on("receive:code", data => setCode(data.code));
@@ -82,14 +82,11 @@ const Room = () => {
   const activateFullscreen = element => {
     if (element.requestFullscreen) {
       element.requestFullscreen();
-    }
-    else if (element.mozRequestFullscreen) {
+    } else if (element.mozRequestFullscreen) {
       element.mozRequestFullscreen();
-    }
-    else if (element.webkitRequestFullscreen) {
+    } else if (element.webkitRequestFullscreen) {
       element.webkitRequestFullscreen();
-    }
-    else if (element.msRequestFullscreen) {
+    } else if (element.msRequestFullscreen) {
       element.msRequestFullscreen();
     }
   };
@@ -97,11 +94,9 @@ const Room = () => {
   const deactivateFullscreen = element => {
     if (element.exitFullscreen) {
       element.exitFullscreen();
-    }
-    else if (element.mozCancelFullscreen) {
+    } else if (element.mozCancelFullscreen) {
       element.mozCancelFullscreen();
-    }
-    else if (element.webkitExitFullscreen) {
+    } else if (element.webkitExitFullscreen) {
       element.webkitExitFullscreen();
     }
   };
@@ -112,8 +107,7 @@ const Room = () => {
     if (isFull) {
       activateFullscreen(container);
       setFull(true);
-    }
-    else {
+    } else {
       deactivateFullscreen(container);
       setFull(false);
     }
@@ -135,10 +129,12 @@ const Room = () => {
           <SaveButton text={code} lang={mode} title={room} />
         </span>
         <span className="w-100">
-        <StatusBar user={typing} status={status} />
+          <StatusBar user={typing} status={status} />
         </span>
         <span className="w-10 mr-3">
-          <Button className="btn btn-info" onClick={clearCode}>Clear</Button>
+          <Button className="btn btn-info" onClick={clearCode}>
+            Clear
+          </Button>
         </span>
       </div>
       <Row className="d-flex justify-content-center align-items-center">

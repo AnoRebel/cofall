@@ -10,20 +10,20 @@ import "./App.css";
 const App = () => {
   return (
     <Router>
-        <Switch>
-          <Route exact path="/">
-            <Home />
-          </Route>
-          <Route exact path="/rooms/:room">
-            <Room />
-          </Route>
-          <Route path="/rooms">
-            <Rooms />
-          </Route>
-          <Route>
-            <NoMatch />
-          </Route>
-        </Switch>
+      <Switch>
+        <Route exact path="/">
+          <Home />
+        </Route>
+        <Route exact path="/rooms/:room">
+          <Room />
+        </Route>
+        <Route path="/rooms">
+          <Rooms />
+        </Route>
+        <Route>
+          <NoMatch />
+        </Route>
+      </Switch>
     </Router>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, ListGroup, InputGroup, FormControl } from 'react-bootstrap';
+import { Container, ListGroup, InputGroup, FormControl } from "react-bootstrap";
 
 // const ENDPOINT = "http://127.0.0.1:5000";
 const ENDPOINT = "https://cofall-signaling-server.herokuapp.com";
@@ -30,10 +30,15 @@ const Rooms = () => {
 
   const roomList = Object.values(rooms).map(room => {
     return (
-      <ListGroup.Item key={room} className="text-center bg-light" action href={user === "" ? "" : `rooms/${room}`}>
+      <ListGroup.Item
+        key={room}
+        className="text-center bg-light"
+        action
+        href={user === "" ? "" : `rooms/${room}`}
+      >
         {room}
       </ListGroup.Item>
-    )
+    );
   });
 
   const onChange = e => {
@@ -43,23 +48,12 @@ const Rooms = () => {
 
   return (
     <Container>
-      <div className="mt-5 text-center text-white h3">
-        All Available Rooms
-      </div>
-      <div className="mt-1 text-center text-white h6">
-        Username:
-      </div>
+      <div className="mt-5 text-center text-white h3">All Available Rooms</div>
+      <div className="mt-1 text-center text-white h6">Username:</div>
       <InputGroup className="my-3">
-        <FormControl
-          required
-          value={user}
-          placeholder="Anonymous"
-          onChange={onChange}
-        />
+        <FormControl required value={user} placeholder="Anonymous" onChange={onChange} />
       </InputGroup>
-      <ListGroup className="d-flex w-50 mt-5 mx-auto">
-        {roomList}
-      </ListGroup>
+      <ListGroup className="d-flex w-50 mt-5 mx-auto">{roomList}</ListGroup>
     </Container>
   );
 };
