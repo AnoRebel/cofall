@@ -4,11 +4,12 @@ import { faPaperPlane, faMicrophone } from "@fortawesome/free-solid-svg-icons";
 import useEventListener from "../utils/useEventListener";
 import { applyColor } from "../utils/colors";
 import "./chatScreen.css";
-import sendNotification from "../utils/notify";
 
 const ChatScreen = props => {
   const user = sessionStorage.getItem("user");
-  const [isFull, setFull] = useState(false);
+  const [title, setTitle] = useState("");
+  const [ignore, setIgnore] = useState(true);
+  const [options, setOptions] = useState({});
 
   let form;
   let messagesElement;
@@ -35,9 +36,77 @@ const ChatScreen = props => {
     });
   }, []);
 
+  const handlePermissionGranted = () => {
+    console.log("Permission Granted");
+    setIgnore(false);
+  };
+  const handlePermissionDenied = () => {
+    console.log("Permission Denied");
+    setIgnore(true);
+  };
+  const handleNotSupported = () => {
+    console.log("Web Notification not Supported");
+    setIgnore(true);
+  };
+
+  const handleNotificationOnClick = (e, tag) => {
+    console.log(e, "Notification clicked tag:" + tag);
+  };
+
+  const handleNotificationOnError = (e, tag) => {
+    console.log(e, "Notification error tag:" + tag);
+  };
+
+  const handleNotificationOnClose = (e, tag) => {
+    setTitle(undefined);
+    console.log(e, "Notification closed tag:" + tag);
+  };
+
+  const handleNotificationOnShow = (e, tag) => {
+    playSound();
+    console.log(e, "Notification shown tag:" + tag);
+  };
+
+  const playSound = filename => {
+    document.getElementById("sound").play();
+  };
+
+  const handleButtonClick = data => {
+    let notifyMsg;
+    if (data.message.length >= 120) {
+      notifyMsg = `${data.message.substring(0, 117)}...`;
+    } else {
+      notifyMsg = data.message;
+    }
+
+    if (ignore) {
+      return;
+    }
+
+    const now = Date.now();
+
+    setTitle(`(Cofall) Message from ${data.user}`);
+
+    // Available options
+    // See https://developer.mozilla.org/en-US/docs/Web/API/Notification/Notification
+    setOptions({
+      tag: `${data.user}-${now}`,
+      body: notifyMsg,
+      badge: "%PUBLIC_URL%/favicon.png",
+      icon: "%PUBLIC_URL%/icon.png",
+      vibrate: window.navigator.vibrate([200, 100]),
+      renotify: true,
+      lang: "en",
+      dir: "ltr",
+      sound: "%PUBLIC_URL%/sound.mp3", // no browsers supported https://developer.mozilla.org/en/docs/Web/API/notification/sound#Browser_compatibility
+    });
+  };
+
   const newMessage = data => {
-    let reply = sendNotification(user, data);
-    console.log(reply);
+    if (user !== data.user) {
+      handleButtonClick(data);
+    }
+
     messagesElement = document.querySelector("#messages");
 
     let div = document.createElement("div");
@@ -122,6 +191,23 @@ const ChatScreen = props => {
 
   return (
     <div id="container" className="text-white w-100">
+      {title ? (
+        <Notification
+          ignore={ignore && title !== ""}
+          askAgain={true}
+          disableActiveWindow={true}
+          notSupported={handleNotSupported}
+          onPermissionGranted={handlePermissionGranted}
+          onPermissionDenied={handlePermissionDenied}
+          onShow={handleNotificationOnShow}
+          onClick={props.handleNotificationOnClick}
+          onClose={handleNotificationOnClose}
+          onError={handleNotificationOnError}
+          timeout={8000}
+          title={title}
+          options={options}
+        />
+      ) : null}
       <div className="d-flex flex-column w-75 h-100 float-left rounded-left">
         <div id="messages" className="d-flex flex-column flex-grow-1 w-100">
           <span id="feedback" className="mx-3 mt-1 text-muted text-monospace font-italic"></span>
