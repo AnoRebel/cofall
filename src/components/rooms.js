@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Container, ListGroup, InputGroup, FormControl } from "react-bootstrap";
 
-// const ENDPOINT = "http://127.0.0.1:5000";
-const ENDPOINT = "https://cofall-signaling-server.herokuapp.com";
+const ENDPOINT = "http://127.0.0.1:5000";
+// const ENDPOINT = "https://cofall-signaling-server.herokuapp.com";
 
 const Rooms = () => {
   const [rooms, setRooms] = useState([]);

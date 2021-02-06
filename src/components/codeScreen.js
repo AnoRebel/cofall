@@ -19,7 +19,7 @@ require("codemirror/addon/lint/lint.css");
 require("codemirror/addon/lint/lint.js");
 require("codemirror/addon/lint/css-lint.js");
 // require("codemirror/addon/lint/html-lint.js");
-require("codemirror/addon/lint/javascript-lint.js");
+// require("codemirror/addon/lint/javascript-lint.js");
 require("codemirror/addon/lint/json-lint.js");
 require("codemirror/addon/lint/yaml-lint.js");
 
