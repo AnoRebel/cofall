@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faMicrophone } from "@fortawesome/free-solid-svg-icons";
-import Notification from "react-web-notification";
+// import Notification from "react-web-notification";
+import Notifier from "react-desktop-notification";
 import useEventListener from "../utils/useEventListener";
 import { applyColor } from "../utils/colors";
 import "./chatScreen.css";
@@ -40,6 +41,7 @@ const ChatScreen = props => {
   const handlePermissionGranted = () => {
     console.log("Permission Granted");
     setIgnore(false);
+    console.log(ignore);
   };
   const handlePermissionDenied = () => {
     console.log("Permission Denied");
@@ -74,14 +76,10 @@ const ChatScreen = props => {
 
   const handleButtonClick = data => {
     let notifyMsg;
-    if (data.message.length >= 120) {
-      notifyMsg = `${data.message.substring(0, 117)}...`;
+    if (data.message.length >= 80) {
+      notifyMsg = `${data.message.substring(0, 77)}...`;
     } else {
       notifyMsg = data.message;
-    }
-
-    if (ignore) {
-      return;
     }
 
     const now = Date.now();
@@ -93,18 +91,22 @@ const ChatScreen = props => {
     setOptions({
       tag: `${data.user}-${now}`,
       body: notifyMsg,
-      badge: "%PUBLIC_URL%/favicon.png",
-      icon: "%PUBLIC_URL%/icon.png",
+      badge: "/favicon.png",
+      icon: "/icon.png",
       vibrate: window.navigator.vibrate([200, 100]),
       renotify: true,
       lang: "en",
       dir: "ltr",
-      sound: "%PUBLIC_URL%/sound.mp3", // no browsers supported https://developer.mozilla.org/en/docs/Web/API/notification/sound#Browser_compatibility
+      sound: "/sound.mp3", // no browsers supported https://developer.mozilla.org/en/docs/Web/API/notification/sound#Browser_compatibility
     });
+
+    Notifier.focus(`(Cofall) Message from ${data.user}`, notifyMsg, "", "/icon.png");
+    // new window.Notification(`(Cofall) Message from ${data.user}`, options);
   };
 
   const newMessage = data => {
     if (user !== data.user) {
+      playSound();
       handleButtonClick(data);
     }
 
@@ -192,7 +194,12 @@ const ChatScreen = props => {
 
   return (
     <div id="container" className="text-white w-100">
-      <Notification
+      <audio id="sound" preload="auto">
+        <source src="/sound.mp3" type="audio/mpeg" />
+        <source src="/sound.ogg" type="audio/ogg" />
+        <embed hidden={true} autostart="false" loop={false} src="/sound.mp3" />
+      </audio>
+      {/* <Notification
         ignore={ignore && title !== ""}
         askAgain={true}
         disableActiveWindow={true}
@@ -206,7 +213,7 @@ const ChatScreen = props => {
         timeout={8000}
         title={title}
         options={options}
-      />
+      /> */}
       <div className="d-flex flex-column w-75 h-100 float-left rounded-left">
         <div id="messages" className="d-flex flex-column flex-grow-1 w-100">
           <span id="feedback" className="mx-3 mt-1 text-muted text-monospace font-italic"></span>
