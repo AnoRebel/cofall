@@ -1,7 +1,6 @@
 {
   "env": {
     "node": true,
-    "require": true,
     "window": true,
     "document": true,
     "es6": true
