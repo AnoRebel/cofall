@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faMicrophone } from "@fortawesome/free-solid-svg-icons";
-// import Notification from "react-web-notification";
-import Notifier from "react-desktop-notification";
+import Notifier from "../utils/notify";
 import useEventListener from "../utils/useEventListener";
 import { applyColor } from "../utils/colors";
 import "./chatScreen.css";
 
 const ChatScreen = props => {
   const user = sessionStorage.getItem("user");
-  const [title, setTitle] = useState("");
-  const [ignore, setIgnore] = useState(true);
-  const [options, setOptions] = useState({});
 
   let form;
   let messagesElement;
@@ -38,39 +34,7 @@ const ChatScreen = props => {
     });
   }, []);
 
-  const handlePermissionGranted = () => {
-    console.log("Permission Granted");
-    setIgnore(false);
-    console.log(ignore);
-  };
-  const handlePermissionDenied = () => {
-    console.log("Permission Denied");
-    setIgnore(true);
-  };
-  const handleNotSupported = () => {
-    console.log("Web Notification not Supported");
-    setIgnore(true);
-  };
-
-  const handleNotificationOnClick = (e, tag) => {
-    console.log(e, "Notification clicked tag:" + tag);
-  };
-
-  const handleNotificationOnError = (e, tag) => {
-    console.log(e, "Notification error tag:" + tag);
-  };
-
-  const handleNotificationOnClose = (e, tag) => {
-    setTitle(undefined);
-    console.log(e, "Notification closed tag:" + tag);
-  };
-
-  const handleNotificationOnShow = (e, tag) => {
-    playSound();
-    console.log(e, "Notification shown tag:" + tag);
-  };
-
-  const playSound = filename => {
+  const playSound = () => {
     document.getElementById("sound").play();
   };
 
@@ -82,31 +46,15 @@ const ChatScreen = props => {
       notifyMsg = data.message;
     }
 
-    const now = Date.now();
-
-    setTitle(`(Cofall) Message from ${data.user}`);
-
-    // Available options
-    // See https://developer.mozilla.org/en-US/docs/Web/API/Notification/Notification
-    setOptions({
-      tag: `${data.user}-${now}`,
-      body: notifyMsg,
-      badge: "/favicon.png",
-      icon: "/icon.png",
-      vibrate: window.navigator.vibrate([200, 100]),
-      renotify: true,
-      lang: "en",
-      dir: "ltr",
-      sound: "/sound.mp3", // no browsers supported https://developer.mozilla.org/en/docs/Web/API/notification/sound#Browser_compatibility
-    });
-
-    Notifier.focus(`(Cofall) Message from ${data.user}`, notifyMsg, "", "/icon.png");
-    // new window.Notification(`(Cofall) Message from ${data.user}`, options);
+    if (data.message !== "Welcome to Code For All!") {
+      Notifier.focus(data, location.href, "/icon.png");
+      // Notifier.start(data, location.href, "/icon.png", "cofall");
+      playSound();
+    }
   };
 
   const newMessage = data => {
     if (user !== data.user) {
-      playSound();
       handleButtonClick(data);
     }
 
@@ -197,23 +145,9 @@ const ChatScreen = props => {
       <audio id="sound" preload="auto">
         <source src="/sound.mp3" type="audio/mpeg" />
         <source src="/sound.ogg" type="audio/ogg" />
+        <source src="/sound.wav" type="audio/wav" />
         <embed hidden={true} autostart="false" loop={false} src="/sound.mp3" />
       </audio>
-      {/* <Notification
-        ignore={ignore && title !== ""}
-        askAgain={true}
-        disableActiveWindow={true}
-        notSupported={handleNotSupported}
-        onPermissionGranted={handlePermissionGranted}
-        onPermissionDenied={handlePermissionDenied}
-        onShow={handleNotificationOnShow}
-        onClick={props.handleNotificationOnClick}
-        onClose={handleNotificationOnClose}
-        onError={handleNotificationOnError}
-        timeout={8000}
-        title={title}
-        options={options}
-      /> */}
       <div className="d-flex flex-column w-75 h-100 float-left rounded-left">
         <div id="messages" className="d-flex flex-column flex-grow-1 w-100">
           <span id="feedback" className="mx-3 mt-1 text-muted text-monospace font-italic"></span>

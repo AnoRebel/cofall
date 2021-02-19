@@ -23,7 +23,6 @@
     "react-scripts": "4.0.1",
     "react-select": "^4.0.2",
     "socket.io-client": "^3.1.1",
-    "react-desktop-notification": "^1.0.9",
     "create-react-class": "^15.7.0",
     "use-clippy": "^1.0.8"
   },
