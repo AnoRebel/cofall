@@ -61,7 +61,7 @@ const ChatScreen = props => {
     messagesElement = document.querySelector("#messages");
 
     let div = document.createElement("div");
-    div.classList.add("w-75", "my-1", user === data.user ? "ml-auto" : "mr-auto");
+    div.classList.add("w-75", "my-1", user === data.user ? "ms-auto" : "me-auto");
     div.id = user === data.user ? "sent" : "recieved";
 
     let div2 = document.createElement("div");
@@ -148,7 +148,7 @@ const ChatScreen = props => {
         <source src="/sound.wav" type="audio/wav" />
         <embed hidden={true} autostart="false" loop={false} src="/sound.mp3" />
       </audio>
-      <div className="d-flex flex-column w-75 h-100 float-left rounded-left">
+      <div className="d-flex flex-column w-75 h-100 float-start rounded-left">
         <div id="messages" className="d-flex flex-column flex-grow-1 w-100">
           <span id="feedback" className="mx-3 mt-1 text-muted text-monospace font-italic"></span>
         </div>
@@ -168,7 +168,7 @@ const ChatScreen = props => {
           </button>
         </form>
       </div>
-      <div id="user-list" className="h-100 w-25 float-right rounded-right">
+      <div id="user-list" className="h-100 w-25 float-end rounded-right">
         <p className="text-center m-0 p-3">Users Online</p>
         {userList}
       </div>

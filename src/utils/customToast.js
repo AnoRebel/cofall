@@ -24,7 +24,7 @@ const CustomToast = props => {
       }}
     >
       <Toast.Header>
-        <strong className="mr-auto">{props.title}</strong>
+        <strong className="me-auto">{props.title}</strong>
         {/* <small>11 mins ago</small> */}
       </Toast.Header>
       <Toast.Body>{props.body}</Toast.Body>

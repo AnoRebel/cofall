@@ -21,7 +21,7 @@ const Header = props => {
 
   return (
     <Navbar bg="dark" variant="dark" className="w-100 justify-content-between">
-      <div className="ml-5 mr-2 w-25">
+      <div className="ms-5 me-2 w-25">
         <Select
           defaultValue={props.theme}
           components={animatedComponents}
@@ -60,7 +60,7 @@ const Header = props => {
           </span>
         </div>
       </OverlayTrigger>
-      <div className={`ml-auto text-white ${props.connected ? "connected" : "disconnected"}`}></div>
+      <div className={`ms-auto text-white ${props.connected ? "connected" : "disconnected"}`}></div>
     </Navbar>
   );
 };

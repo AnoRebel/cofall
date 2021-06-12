@@ -125,13 +125,13 @@ const Room = () => {
         user={user}
       />
       <div className="d-flex w-100 align-items-center mt-3">
-        <span className="w-10 ml-3">
+        <span className="w-10 ms-3">
           <SaveButton text={code} lang={mode} title={room} />
         </span>
         <span className="w-100">
           <StatusBar user={typing} status={status} />
         </span>
-        <span className="w-10 mr-3">
+        <span className="w-10 me-3">
           <Button className="btn btn-info" onClick={clearCode}>
             Clear
           </Button>

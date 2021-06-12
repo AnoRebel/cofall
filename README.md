@@ -1,8 +1,4 @@
-# CoFall(Code For All)
-
-**Code Collaboration in real-time with a chat feature**
-
-### [Demo](https://cofall.now.sh): https://cofall.now.sh
+# Rahisi Devs Portal
 
 Made with:
 
@@ -16,6 +12,10 @@ To run this;
   - Clone the repo
   
 	`git clone https://github.com/anorebel/cofall.git`
+
+  - Checkout Rahisi branch
+	
+	`git checkout Rahisi`
  
   - Enter the directory
   
