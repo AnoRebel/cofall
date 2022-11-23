@@ -1,23 +1,15 @@
 <script setup>
 import { useI18n } from "vue-i18n";
-import { PreLoader, Header, MobileMenu, Footer, ScrollToTop } from "@/components";
+import { Header, Footer, ScrollToTop } from "@/components";
 
 const { t } = useI18n();
 </script>
 
 <template>
   <div class="boxed_wrapper">
-    <!-- preloader -->
-    <PreLoader />
-    <!-- preloader end -->
-
     <!-- main header -->
     <Header />
     <!-- main-header end -->
-
-    <!-- Mobile Menu  -->
-    <MobileMenu />
-    <!-- End Mobile Menu -->
 
     <!-- about-style-two -->
     <section class="about-style-two bg-darker" style="background-image: url(/images/bg.jpeg)">

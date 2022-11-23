@@ -13,17 +13,6 @@ onMounted(() => {
       isTop.value = true;
     }
   });
-  // Scroll to a Specific Div
-  $(".scroll-to-target").on("click", function () {
-    let target = $(this).attr("data-target");
-    // animate
-    $("html, body").animate(
-      {
-        scrollTop: $(target).offset().top,
-      },
-      1000
-    );
-  });
 });
 
 onBeforeUnmount(() => {

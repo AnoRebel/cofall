@@ -1,8 +1,7 @@
-import PreLoader from "@/components/PreLoader.vue";
 import Header from "@/components/Header.vue";
-import MobileMenu from "@/components/MobileMenu.vue";
 import Footer from "@/components/Footer.vue";
 import ScrollToTop from "@/components/ScrollToTop.vue";
-import Seat from "@/components/Seat.vue";
+import SideBar from "@/components/SideBar.vue";
+import SideLink from "@/components/SideLink.vue";
 
-export { Footer, Header, MobileMenu, PreLoader, ScrollToTop, Seat };
+export { Footer, Header, ScrollToTop, SideBar, SideLink };

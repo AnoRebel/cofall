@@ -1,12 +1,8 @@
 <script setup>
-import { onBeforeMount, onMounted } from "vue";
+import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { useBookingStore } from "@/stores/booking";
 
 const { locale } = useI18n();
-const booking = useBookingStore();
-
-onBeforeMount(async () => await booking.getAndSetSplash());
 
 onMounted(() => {
   locale.value =
@@ -24,5 +20,5 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
-import "@/assets/css/style.scss";
+@import "@/assets/css/style.scss";
 </style>

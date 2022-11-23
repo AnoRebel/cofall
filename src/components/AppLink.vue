@@ -14,7 +14,5 @@ import { RouterLink } from "vue-router";
 const props = defineProps({
   ...RouterLink.props,
 });
-const isExternal = computed(
-  () => typeof props.to === "string" && props.to.startsWith("http")
-);
+const isExternal = computed(() => typeof props.to === "string" && props.to.startsWith("http"));
 </script>

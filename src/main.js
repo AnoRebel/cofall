@@ -1,5 +1,7 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { createApp, markRaw } from "vue";
+import { createPinia } from "pinia";
+import { createI18n } from "vue-i18n";
+import messages from "@intlify/vite-plugin-vue-i18n/messages";
 
 import App from "@/App.vue";
 import router from "@/router";
@@ -9,20 +11,15 @@ const piniaPersistence = ({ store }) => {
   const name = store.$id;
   if (sessionStorage.getItem(name)) {
     store.$patch(JSON.parse(sessionStorage.getItem(name)));
-    // Quickfix
-    store.search.date = new Date(store.search.date);
-    store.loading = false;
-    store.splashLoading = false;
-    store.searchLoading = false;
     // store.$patch(localForage.getItem(name));
   }
-  store.$subscribe((mutation, state) => {
+  store.$subscribe((_, state) => {
     // localForage.setItem(name, state);
     sessionStorage.setItem(name, JSON.stringify(state));
   });
 };
 const piniaLogger = ({ store }) => {
-  store.$subscribe((mutation, state) => {
+  store.$subscribe((mutation, _) => {
     const mut = `{ "store": ${mutation.storeId}, "type": ${mutation.type}, "payload": ${mutation.payload} }`;
     console.log(JSON.parse(JSON.stringify(mut)));
   });
@@ -34,7 +31,7 @@ const piniaLogger = ({ store }) => {
 
 const i18n = createI18n({
   legacy: false,
-  locale: "sw",
+  locale: "en",
   fallbackLocale: "en",
   messages,
 });
@@ -52,5 +49,6 @@ pinia.use(({ store }) => {
 app.component("AppLink", AppLink);
 app.use(pinia);
 app.use(router);
+app.use(i18n);
 
 router.isReady().then(() => app.mount("#app"));
