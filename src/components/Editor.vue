@@ -1,0 +1,267 @@
+<script setup>
+import { reactive, shallowRef, computed, watch, onMounted } from "vue";
+import { EditorView, ViewUpdate } from "@codemirror/view";
+import { redo, undo } from "@codemirror/commands";
+import { Codemirror } from "vue-codemirror";
+
+import * as Y from "yjs";
+// @ts-ignore
+import { yCollab } from "y-codemirror.next";
+import { WebrtcProvider } from "y-webrtc";
+
+const config = reactive({
+  disabled: false,
+  indentWithTab: true,
+  tabSize: 2,
+  autofocus: true,
+  height: "auto",
+  language: "javascript",
+  theme: useTheme().theme.value === Theme.Light ? "default" : "oneDark",
+});
+const loading = shallowRef(false);
+const langCodeMap = reactive({ code: "", language: () => {} });
+const currentLangCode = computed(() => langCodeMap.get(config.language));
+const currentTheme = computed(() => {
+  return config.theme !== "default" ? config.theme : void 0;
+});
+const ensureLanguageCode = async targetLanguage => {
+  config.language = targetLanguage;
+  loading.value = true;
+  const delayPromise = () => new Promise(resolve => window.setTimeout(resolve, 260));
+  if (langCodeMap.has(targetLanguage)) {
+    await delayPromise();
+  } else {
+    const [result] = await Promise.all([languages[targetLanguage](), delayPromise()]);
+    langCodeMap.set(targetLanguage, result.default);
+  }
+  loading.value = false;
+};
+
+const usercolors = [
+  { color: "#30bced", light: "#30bced33" },
+  { color: "#6eeb83", light: "#6eeb8333" },
+  { color: "#ffbc42", light: "#ffbc4233" },
+  { color: "#ecd444", light: "#ecd44433" },
+  { color: "#ee6352", light: "#ee635233" },
+  { color: "#9ac2c9", light: "#9ac2c933" },
+  { color: "#8acb88", light: "#8acb8833" },
+  { color: "#1be7ff", light: "#1be7ff33" },
+];
+
+// select a random color for this user
+const userColor = usercolors[random.uint32() % usercolors.length];
+
+const ydoc = new Y.Doc();
+const provider = new WebrtcProvider("codemirror6-demo-room", ydoc);
+const ytext = ydoc.getText("codemirror");
+
+const undoManager = new Y.UndoManager(ytext);
+
+provider.awareness.setLocalStateField("user", {
+  name: "Anonymous " + Math.floor(Math.random() * 100),
+  color: userColor.color,
+  colorLight: userColor.light,
+});
+
+// FIX
+// const state = EditorState.create({
+//   doc: ytext.toString(),
+//   extensions: [
+//     basicSetup,
+//     javascript(),
+//     yCollab(ytext, provider.awareness, { undoManager })
+//   ]
+// })
+//
+// const view = new EditorView({ state, parent: /** @type {HTMLElement} */ (document.querySelector('#editor')) });
+//
+
+const props = defineProps({
+  config: {
+    type: Object,
+    required: true,
+  },
+  code: {
+    type: String,
+    required: true,
+  },
+  theme: [Object, Array],
+  language: Function,
+});
+const log = console.log;
+const code = shallowRef(props.code);
+const extensions = computed(() => {
+  const result = [];
+  if (props.language) {
+    result.push(props.language());
+  }
+  if (props.theme) {
+    result.push(props.theme);
+  }
+  return result;
+});
+
+const preview = shallowRef(false);
+const togglePreview = () => {
+  preview.value = !preview.value;
+};
+
+const cmView = shallowRef();
+const handleReady = ({ view }) => {
+  cmView.value = view;
+};
+
+// https://github.com/codemirror/commands/blob/main/test/test-history.ts
+const handleUndo = () => {
+  undo({
+    state: cmView.value.state,
+    dispatch: cmView.value.dispatch,
+  });
+};
+
+const handleRedo = () => {
+  redo({
+    state: cmView.value.state,
+    dispatch: cmView.value.dispatch,
+  });
+};
+
+const state = reactive({
+  lines: null,
+  cursor: null,
+  selected: null,
+  length: null,
+});
+
+const handleStateUpdate = viewUpdate => {
+  // selected
+  const ranges = viewUpdate.state.selection.ranges;
+  state.selected = ranges.reduce((plus, range) => plus + range.to - range.from, 0);
+  state.cursor = ranges[0].anchor;
+  // length
+  state.length = viewUpdate.state.doc.length;
+  state.lines = viewUpdate.state.doc.lines;
+  // log('viewUpdate', viewUpdate)
+};
+
+onMounted(() => {
+  watch(
+    () => props.code,
+    _code => {
+      code.value = _code;
+    }
+  );
+});
+</script>
+
+<template>
+  <div class="editor">
+    <div class="main">
+      <codemirror
+        v-model="code"
+        :style="{
+          width: preview ? '50%' : '100%',
+          height: config.height,
+          backgroundColor: '#fff',
+          color: '#333',
+        }"
+        placeholder="Please enter the code."
+        :extensions="extensions"
+        :autofocus="config.autofocus"
+        :disabled="config.disabled"
+        :indent-with-tab="config.indentWithTab"
+        :tab-size="config.tabSize"
+        @update="handleStateUpdate"
+        @ready="handleReady"
+        @focus="log('focus', $event)"
+        @blur="log('blur', $event)"
+      />
+      <pre
+        v-if="preview"
+        class="code"
+        :style="{ height: config.height, width: preview ? '50%' : '0px' }"
+        >{{ code }}</pre
+      >
+    </div>
+    <div class="divider"></div>
+    <div class="footer">
+      <div class="buttons">
+        <button class="item" @click="togglePreview">
+          <span>Preview</span>
+          <i class="iconfont" :class="preview ? 'icon-eye' : 'icon-eye-close'"></i>
+        </button>
+        <button class="item" @click="handleUndo">Undo</button>
+        <button class="item" @click="handleRedo">Redo</button>
+      </div>
+      <div class="infos">
+        <span class="item">Spaces: {{ config.tabSize }}</span>
+        <span class="item">Length: {{ state.length }}</span>
+        <span class="item">Lines: {{ state.lines }}</span>
+        <span class="item">Cursor: {{ state.cursor }}</span>
+        <span class="item">Selected: {{ state.selected }}</span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.editor {
+  .divider {
+    height: 1px;
+    background-color: $border-color;
+  }
+
+  .main {
+    display: flex;
+    width: 100%;
+
+    .code {
+      width: 30%;
+      height: 100px;
+      margin: 0;
+      padding: 0.4em;
+      overflow: scroll;
+      border-left: 1px solid $border-color;
+      font-family: monospace;
+    }
+  }
+
+  .footer {
+    height: 3rem;
+    padding: 0 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 90%;
+
+    .buttons {
+      .item {
+        margin-right: 1em;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        background-color: transparent;
+        border: 1px dashed $border-color;
+        font-size: $font-size-small;
+        color: $text-secondary;
+        cursor: pointer;
+        .iconfont {
+          margin-left: $xs-gap;
+        }
+        &:hover {
+          color: $text-color;
+          border-color: $text-color;
+        }
+      }
+    }
+
+    .infos {
+      .item {
+        margin-left: 2em;
+        display: inline-block;
+        font-feature-settings: "tnum";
+      }
+    }
+  }
+}
+</style>

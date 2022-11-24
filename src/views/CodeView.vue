@@ -1,0 +1,86 @@
+<script setup>
+import { reactive, computed, shallowRef, onBeforeMount } from "vue";
+import { Theme, useTheme } from "@/composables/theme";
+import { Loading, ToolBar } from "@/components";
+import languages from "./languages";
+import Editor from "./editor.vue";
+
+const config = reactive({
+  disabled: false,
+  indentWithTab: true,
+  tabSize: 2,
+  autofocus: true,
+  height: "auto",
+  language: "javascript",
+  theme: useTheme().theme.value === Theme.Light ? "default" : "oneDark",
+});
+const loading = shallowRef(false);
+const langCodeMap = reactive({ code: "", language: () => {} });
+const currentLangCode = computed(() => langCodeMap.get(config.language));
+const currentTheme = computed(() => {
+  return config.theme !== "default" ? config.theme : void 0;
+});
+const ensureLanguageCode = async targetLanguage => {
+  config.language = targetLanguage;
+  loading.value = true;
+  const delayPromise = () => new Promise(resolve => window.setTimeout(resolve, 260));
+  if (langCodeMap.has(targetLanguage)) {
+    await delayPromise();
+  } else {
+    const [result] = await Promise.all([languages[targetLanguage](), delayPromise()]);
+    langCodeMap.set(targetLanguage, result.default);
+  }
+  loading.value = false;
+};
+
+// HACK: Make sure the first screen the user sees is the loading placeholder
+loading.value = true;
+onBeforeMount(() => {
+  // init default language & code
+  ensureLanguageCode(config.language);
+});
+</script>
+
+<template>
+  <div class="example">
+    <ToolBar
+      :config="config"
+      :disabled="loading"
+      :themes="Object.keys(themes)"
+      :languages="Object.keys(languages)"
+      @language="ensureLanguageCode"
+    />
+    <div class="divider"></div>
+    <div class="loading-box" v-if="loading">
+      <Loading />
+    </div>
+    <Editor
+      v-else-if="currentLangCode"
+      :config="config"
+      :theme="currentTheme"
+      :language="currentLangCode.language"
+      :code="currentLangCode.code"
+    />
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.example {
+  .divider {
+    height: 1px;
+    background-color: $border-color;
+  }
+  .loading-box {
+    width: 100%;
+    min-height: 20rem;
+    max-height: 60rem;
+    /* loading height = view-height - layout-height - page-height */
+    /* navbar + banner + footer */
+    $layout-height: $navbar-height + $banner-height + $footbar-height;
+    /* single-card-gap * 2 + card-header + editor-header */
+    $page-height: 2rem * 2 + 3.2rem + 3rem;
+    /* editor-border * 2 */
+    height: calc(100vh - $layout-height - $page-height - 2px);
+  }
+}
+</style>

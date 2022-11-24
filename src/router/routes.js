@@ -5,6 +5,19 @@ const routes = [
     path: "/",
     name: "Home",
     component: HomeView,
+    redirect: "/code",
+    children: [
+      {
+        path: "code",
+        name: "Code",
+        component: () => import("@/views/CodeView.vue"),
+      },
+      {
+        path: "calls",
+        name: "Calls",
+        component: () => import("@/views/CallView.vue"),
+      },
+    ],
   },
   {
     path: "/about",

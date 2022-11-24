@@ -9,13 +9,13 @@ import { SideLink } from "@/components";
     <nav class="h-full p-2 rounded bg-gray-700 shadow">
       <ul class="flex flex-col space-y-4">
         <li class="group">
-          <SideLink to="#" name="Link 1">
-            <VideoCameraIcon class="ml-0 sm:ml-4 h-6 w-6" />
+          <SideLink :to="{ name: 'Code' }" name="Link 2">
+            <CodeBracketIcon class="ml-0 sm:ml-4 h-6 w-6" />
           </SideLink>
         </li>
         <li class="group">
-          <SideLink to="#" name="Link 2">
-            <CodeBracketIcon class="ml-0 sm:ml-4 h-6 w-6" />
+          <SideLink :to="{ name: 'Calls' }" name="Link 1">
+            <VideoCameraIcon class="ml-0 sm:ml-4 h-6 w-6" />
           </SideLink>
         </li>
       </ul>
