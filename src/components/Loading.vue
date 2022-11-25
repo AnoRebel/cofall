@@ -7,6 +7,12 @@
 </template>
 
 <style lang="scss" scoped>
+@use "sass:math";
+// gaps
+$gap: 1rem; // ~14px
+$sm-gap: $gap * 0.618; // ~8.6px
+$xs-gap: math.div($sm-gap, 2); // ~4.4px
+
 .loading {
   width: 100%;
   height: 100%;
@@ -34,8 +40,8 @@
       width: 18px;
       height: 18px;
       margin: 0 $xs-gap;
-      border-radius: $sm-radius;
-      background: $body-bg;
+      border-radius: 2px;
+      background: var(--theme-body);
       animation: animation 2s linear infinite;
     }
     div:nth-child(1) {

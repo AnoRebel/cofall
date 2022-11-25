@@ -6,6 +6,7 @@ import messages from "@intlify/vite-plugin-vue-i18n/messages";
 import App from "@/App.vue";
 import router from "@/router";
 import AppLink from "@/components/AppLink.vue";
+import { createTheme, Theme } from "@/composables/theme";
 
 const piniaPersistence = ({ store }) => {
   const name = store.$id;
@@ -38,6 +39,7 @@ const i18n = createI18n({
 
 const app = createApp(App);
 const pinia = createPinia();
+const theme = createTheme(Theme.Dark);
 
 pinia.use(piniaLogger);
 pinia.use(piniaPersistence);
@@ -50,5 +52,6 @@ app.component("AppLink", AppLink);
 app.use(pinia);
 app.use(router);
 app.use(i18n);
+app.use(theme);
 
 router.isReady().then(() => app.mount("#app"));

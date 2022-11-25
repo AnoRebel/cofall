@@ -1,9 +1,9 @@
 <script setup>
 import { reactive, computed, shallowRef, onBeforeMount } from "vue";
+import { oneDark } from "@codemirror/theme-one-dark";
 import { Theme, useTheme } from "@/composables/theme";
-import { Loading, ToolBar } from "@/components";
-import languages from "./languages";
-import Editor from "./editor.vue";
+import { Loading, ToolBar, Editor } from "@/components";
+import languages from "@/composables/languages";
 
 const config = reactive({
   disabled: false,
@@ -12,24 +12,23 @@ const config = reactive({
   autofocus: true,
   height: "auto",
   language: "javascript",
-  theme: useTheme().theme.value === Theme.Light ? "default" : "oneDark",
+  theme: useTheme().theme.value === Theme.Dark ? "default" : "oneDark",
 });
 const loading = shallowRef(false);
-const langCodeMap = reactive({ code: "", language: () => {} });
-const currentLangCode = computed(() => langCodeMap.get(config.language));
+const currentLang = computed(() => languages[config.language]);
 const currentTheme = computed(() => {
   return config.theme !== "default" ? config.theme : void 0;
 });
-const ensureLanguageCode = async targetLanguage => {
+const ensureLanguageCode = targetLanguage => {
   config.language = targetLanguage;
-  loading.value = true;
-  const delayPromise = () => new Promise(resolve => window.setTimeout(resolve, 260));
-  if (langCodeMap.has(targetLanguage)) {
-    await delayPromise();
-  } else {
-    const [result] = await Promise.all([languages[targetLanguage](), delayPromise()]);
-    langCodeMap.set(targetLanguage, result.default);
-  }
+  // loading.value = true;
+  // const delayPromise = () => new Promise(resolve => window.setTimeout(resolve, 260));
+  // if (langCodeMap.has(targetLanguage)) {
+  //   await delayPromise();
+  // } else {
+  //   const [result] = await Promise.all([languages[targetLanguage](), delayPromise()]);
+  //   langCodeMap.set(targetLanguage, result.default);
+  // }
   loading.value = false;
 };
 
@@ -46,7 +45,7 @@ onBeforeMount(() => {
     <ToolBar
       :config="config"
       :disabled="loading"
-      :themes="Object.keys(themes)"
+      :themes="Object.keys({ oneDark })"
       :languages="Object.keys(languages)"
       @language="ensureLanguageCode"
     />
@@ -54,13 +53,7 @@ onBeforeMount(() => {
     <div class="loading-box" v-if="loading">
       <Loading />
     </div>
-    <Editor
-      v-else-if="currentLangCode"
-      :config="config"
-      :theme="currentTheme"
-      :language="currentLangCode.language"
-      :code="currentLangCode.code"
-    />
+    <Editor :config="config" :theme="currentTheme" :language="currentLang" code="Text" />
   </div>
 </template>
 
@@ -68,7 +61,7 @@ onBeforeMount(() => {
 .example {
   .divider {
     height: 1px;
-    background-color: $border-color;
+    background-color: var(--theme-border);
   }
   .loading-box {
     width: 100%;
@@ -76,7 +69,7 @@ onBeforeMount(() => {
     max-height: 60rem;
     /* loading height = view-height - layout-height - page-height */
     /* navbar + banner + footer */
-    $layout-height: $navbar-height + $banner-height + $footbar-height;
+    $layout-height: 3rem + 25rem + 4rem;
     /* single-card-gap * 2 + card-header + editor-header */
     $page-height: 2rem * 2 + 3.2rem + 3rem;
     /* editor-border * 2 */

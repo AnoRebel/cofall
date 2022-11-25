@@ -5,5 +5,6 @@ import ScrollToTop from "@/components/ScrollToTop.vue";
 import SideBar from "@/components/SideBar.vue";
 import SideLink from "@/components/SideLink.vue";
 import ToolBar from "@/components/ToolBar.vue";
+import Editor from "@/components/Editor.vue";
 
-export { Footer, Header, Loading, ScrollToTop, SideBar, SideLink, ToolBar };
+export { Editor, Footer, Header, Loading, ScrollToTop, SideBar, SideLink, ToolBar };

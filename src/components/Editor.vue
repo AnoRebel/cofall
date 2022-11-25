@@ -1,6 +1,5 @@
 <script setup>
 import { reactive, shallowRef, computed, watch, onMounted } from "vue";
-import { EditorView, ViewUpdate } from "@codemirror/view";
 import { redo, undo } from "@codemirror/commands";
 import { Codemirror } from "vue-codemirror";
 
@@ -9,33 +8,18 @@ import * as Y from "yjs";
 import { yCollab } from "y-codemirror.next";
 import { WebrtcProvider } from "y-webrtc";
 
-const config = reactive({
-  disabled: false,
-  indentWithTab: true,
-  tabSize: 2,
-  autofocus: true,
-  height: "auto",
-  language: "javascript",
-  theme: useTheme().theme.value === Theme.Light ? "default" : "oneDark",
+const props = defineProps({
+  config: {
+    type: Object,
+    required: true,
+  },
+  code: {
+    type: String,
+    required: true,
+  },
+  theme: [Object, Array],
+  language: Function,
 });
-const loading = shallowRef(false);
-const langCodeMap = reactive({ code: "", language: () => {} });
-const currentLangCode = computed(() => langCodeMap.get(config.language));
-const currentTheme = computed(() => {
-  return config.theme !== "default" ? config.theme : void 0;
-});
-const ensureLanguageCode = async targetLanguage => {
-  config.language = targetLanguage;
-  loading.value = true;
-  const delayPromise = () => new Promise(resolve => window.setTimeout(resolve, 260));
-  if (langCodeMap.has(targetLanguage)) {
-    await delayPromise();
-  } else {
-    const [result] = await Promise.all([languages[targetLanguage](), delayPromise()]);
-    langCodeMap.set(targetLanguage, result.default);
-  }
-  loading.value = false;
-};
 
 const usercolors = [
   { color: "#30bced", light: "#30bced33" },
@@ -48,17 +32,23 @@ const usercolors = [
   { color: "#1be7ff", light: "#1be7ff33" },
 ];
 
+const randomInt = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 // select a random color for this user
-const userColor = usercolors[random.uint32() % usercolors.length];
+const userColor = usercolors[randomInt(0, usercolors.length - 1)];
 
 const ydoc = new Y.Doc();
-const provider = new WebrtcProvider("codemirror6-demo-room", ydoc);
+const provider = new WebrtcProvider("cofall", ydoc);
 const ytext = ydoc.getText("codemirror");
 
 const undoManager = new Y.UndoManager(ytext);
 
 provider.awareness.setLocalStateField("user", {
-  name: "Anonymous " + Math.floor(Math.random() * 100),
+  name: "Username", // TODO: Added stored username
   color: userColor.color,
   colorLight: userColor.light,
 });
@@ -76,22 +66,10 @@ provider.awareness.setLocalStateField("user", {
 // const view = new EditorView({ state, parent: /** @type {HTMLElement} */ (document.querySelector('#editor')) });
 //
 
-const props = defineProps({
-  config: {
-    type: Object,
-    required: true,
-  },
-  code: {
-    type: String,
-    required: true,
-  },
-  theme: [Object, Array],
-  language: Function,
-});
 const log = console.log;
 const code = shallowRef(props.code);
 const extensions = computed(() => {
-  const result = [];
+  const result = [yCollab(ytext, provider.awareness, { undoManager })];
   if (props.language) {
     result.push(props.language());
   }
@@ -205,10 +183,16 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+@use "sass:math";
+// gaps
+$gap: 1rem; // ~14px
+$sm-gap: $gap * 0.618; // ~8.6px
+$xs-gap: math.div($sm-gap, 2); // ~4.4px
+
 .editor {
   .divider {
     height: 1px;
-    background-color: $border-color;
+    background-color: var(--theme-border);
   }
 
   .main {
@@ -221,7 +205,7 @@ onMounted(() => {
       margin: 0;
       padding: 0.4em;
       overflow: scroll;
-      border-left: 1px solid $border-color;
+      border-left: 1px solid var(--theme-border);
       font-family: monospace;
     }
   }
@@ -241,16 +225,16 @@ onMounted(() => {
         justify-content: center;
         align-items: center;
         background-color: transparent;
-        border: 1px dashed $border-color;
-        font-size: $font-size-small;
-        color: $text-secondary;
+        border: 1px dashed var(--theme-border);
+        font-size: 12px;
+        color: var(--text-secondary);
         cursor: pointer;
         .iconfont {
           margin-left: $xs-gap;
         }
         &:hover {
-          color: $text-color;
-          border-color: $text-color;
+          color: var(--text-color);
+          border-color: var(--text-color);
         }
       }
     }
