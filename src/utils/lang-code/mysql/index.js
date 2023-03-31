@@ -1,5 +1,5 @@
-import { sql, MySQL } from '@codemirror/lang-sql'
+import { sql, MySQL } from "@codemirror/lang-sql";
 
 export default {
-  language: () => sql({ dialect: MySQL })
-}
+  language: () => sql({ dialect: MySQL }),
+};

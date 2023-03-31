@@ -1,5 +1,5 @@
-import { html } from '@codemirror/lang-html'
+import { html } from "@codemirror/lang-html";
 
 export default {
-  language: html
-}
+  language: html,
+};

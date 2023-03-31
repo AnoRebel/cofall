@@ -1,6 +1,6 @@
-import { StreamLanguage } from '@codemirror/language'
-import { powerShell } from '@codemirror/legacy-modes/mode/powershell'
+import { StreamLanguage } from "@codemirror/language";
+import { powerShell } from "@codemirror/legacy-modes/mode/powershell";
 
 export default {
-  language: () => StreamLanguage.define(powerShell)
-}
+  language: () => StreamLanguage.define(powerShell),
+};

@@ -1,5 +1,5 @@
-import { json } from '@codemirror/lang-json'
+import { json } from "@codemirror/lang-json";
 
 export default {
-  language: json
-}
+  language: json,
+};

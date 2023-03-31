@@ -1,5 +1,5 @@
-import { java } from '@codemirror/lang-java'
+import { java } from "@codemirror/lang-java";
 
 export default {
-  language: java
-}
+  language: java,
+};

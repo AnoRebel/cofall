@@ -1,6 +1,6 @@
-import { StreamLanguage } from '@codemirror/language'
-import { dart } from '@codemirror/legacy-modes/mode/clike'
+import { StreamLanguage } from "@codemirror/language";
+import { dart } from "@codemirror/legacy-modes/mode/clike";
 
 export default {
-  language: () => StreamLanguage.define(dart)
-}
+  language: () => StreamLanguage.define(dart),
+};

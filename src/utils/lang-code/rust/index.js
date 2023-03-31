@@ -1,5 +1,5 @@
-import { rust } from '@codemirror/lang-rust'
+import { rust } from "@codemirror/lang-rust";
 
 export default {
-  language: rust
-}
+  language: rust,
+};

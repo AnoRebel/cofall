@@ -1,5 +1,5 @@
-import { lezer } from '@codemirror/lang-lezer'
+import { lezer } from "@codemirror/lang-lezer";
 
 export default {
-  language: lezer
-}
+  language: lezer,
+};

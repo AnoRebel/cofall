@@ -1,5 +1,5 @@
-import { javascript } from '@codemirror/lang-javascript'
+import { javascript } from "@codemirror/lang-javascript";
 
 export default {
-  language: () => javascript({ typescript: true })
-}
+  language: () => javascript({ typescript: true }),
+};

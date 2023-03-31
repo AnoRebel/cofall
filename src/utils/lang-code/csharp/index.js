@@ -1,6 +1,6 @@
-import { StreamLanguage } from '@codemirror/language'
-import { csharp } from '@codemirror/legacy-modes/mode/clike'
+import { StreamLanguage } from "@codemirror/language";
+import { csharp } from "@codemirror/legacy-modes/mode/clike";
 
 export default {
-  language: () => StreamLanguage.define(csharp)
-}
+  language: () => StreamLanguage.define(csharp),
+};

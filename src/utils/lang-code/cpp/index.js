@@ -1,5 +1,5 @@
-import { cpp } from '@codemirror/lang-cpp'
+import { cpp } from "@codemirror/lang-cpp";
 
 export default {
-  language: cpp
-}
+  language: cpp,
+};

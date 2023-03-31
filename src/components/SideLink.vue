@@ -21,9 +21,9 @@ defineProps({
 
 <style lang="scss" scoped>
 .side-link {
-  @apply relative h-12 flex space-x-2 rounded-lg sm:hover:rounded-lg hover:rounded-full transition-all items-center justify-center sm:justify-start bg-green-100;
+  @apply relative flex h-12 items-center justify-center space-x-2 rounded-lg bg-green-100 transition-all hover:rounded-full sm:justify-start sm:hover:rounded-lg;
 }
 .tooltip {
-  @apply invisible absolute group-hover:visible rounded shadow-lg p-1 bg-gray-100 top-[20%] left-12 w-max z-50 sm:hidden;
+  @apply invisible absolute top-[20%] left-12 z-50 w-max rounded bg-gray-100 p-1 shadow-lg group-hover:visible sm:hidden;
 }
 </style>

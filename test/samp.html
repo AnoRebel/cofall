@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Chat</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet prefetch"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css"
+    />
+    <link rel="stylesheet" href="./samp.css" />
+  </head>
+  <body class="bg-dark overflow-hidden">
+    <div class="d-flex justify-content-center align-items-center">
+      <div class="col-6">
+        <div class="card vh-100 bg-secondary text-white">Some</div>
+      </div>
+      <div class="col-6">
+        <div id="container" class="rounded text-white w-100 vh-100">
+          <div class="d-flex flex-column w-75 h-100 float-left rounded-left">
+            <div id="messages" class="d-flex flex-column flex-grow-1 w-100">
+            <span id="feedback" class="mx-3 mt-1 text-muted text-monospace font-italic"></span>
+              <div id="received" class="w-75 my-1 mr-auto">
+                <div class="card d-flex flex-row bg-transparent border-0 w-100 p-2 h-100">
+                  <div class="message-body card-body rounded py-2 w-100 overflow-hidden">
+                    <span class="message-sender card-title font-weight-bold">Ano</span>
+                    <span class="card-text"
+                      >hladskjhasjdhfasldjfdjfksjdfkjsdkfjksdljflsjfklsjkfjslkkjflkskashlfjlahsljkfl</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div id="sent" class="w-75 my-1 ml-auto">
+                <div class="card d-flex flex-row bg-transparent border-0 w-100 p-2 h-100">
+                  <div class="message-body card-body rounded py-2 w-100 overflow-hidden">
+                    <span class="message-sender card-title font-weight-bold">You</span>
+                    <span class="card-text"
+                      >hladskjhasjdhfasldjfdjfksjdfkjsdkfjksdljflsjfklsjkfjslkkjflkskashlfjlahsljkfl</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <form id="chatform" class="w-100 d-flex flex-row flex-nowrap form-inline">
+              <input
+                type="text"
+                class="form-control form-control-lg text-white flex-grow-1 border-0 rounded-0"
+                id="chat-text"
+                name="chat-text"
+                placeholder="Text Message"
+              />
+              <button class="btn btn-lg btn-info rounded-0" href="">
+                <i class="fa fa-paperclip attachment" aria-hidden="true"></i>
+              </button>
+              <button type="submit" class="btn btn-lg btn-success rounded-0">
+                <i class="fa fa-paper-plane" aria-hidden="true"></i>
+              </button>
+            </form>
+          </div>
+          <div id="user-list" class="h-100 w-25 float-right rounded-right">
+            <p class="text-center m-0 p-3">Users Online</p>
+            <div class="users d-flex align-items-center w-100 my-1 mx-3">
+              <div class="status bg-success rounded-circle bg-success"></div>
+              <div class="status-title text-white mx-3">Ano Rebel</div>
+            </div>
+            <div class="users d-flex align-items-center w-100 my-1 mx-3">
+              <div class="status bg-warning rounded-circle bg-success"></div>
+              <div class="status-title text-white mx-3">Ano Rebel</div>
+            </div>
+            <div class="users d-flex align-items-center w-100 my-1 mx-3">
+              <div class="status bg-danger rounded-circle bg-success"></div>
+              <div class="status-title text-white mx-3">Ano Rebel</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+      integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+      crossorigin="anonymous"
+    ></script>
+    <script src="./samp.js"></script>
+  </body>
+</html>

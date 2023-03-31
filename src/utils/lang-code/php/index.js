@@ -1,5 +1,5 @@
-import { php } from '@codemirror/lang-php'
+import { php } from "@codemirror/lang-php";
 
 export default {
-  language: php
-}
+  language: php,
+};

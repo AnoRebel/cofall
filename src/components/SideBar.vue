@@ -6,16 +6,16 @@ import { SideLink } from "@/components";
 
 <template>
   <aside>
-    <nav class="h-full p-2 rounded bg-gray-700 shadow">
+    <nav class="h-full rounded bg-gray-700 p-2 shadow">
       <ul class="flex flex-col space-y-4">
         <li class="group">
           <SideLink :to="{ name: 'Code' }" name="Link 2">
-            <CodeBracketIcon class="ml-0 sm:ml-4 h-6 w-6" />
+            <CodeBracketIcon class="ml-0 h-6 w-6 sm:ml-4" />
           </SideLink>
         </li>
         <li class="group">
           <SideLink :to="{ name: 'Calls' }" name="Link 1">
-            <VideoCameraIcon class="ml-0 sm:ml-4 h-6 w-6" />
+            <VideoCameraIcon class="ml-0 h-6 w-6 sm:ml-4" />
           </SideLink>
         </li>
       </ul>

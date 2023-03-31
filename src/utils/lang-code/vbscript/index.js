@@ -1,6 +1,6 @@
-import { StreamLanguage } from '@codemirror/language'
-import { vbScript } from '@codemirror/legacy-modes/mode/vbscript'
+import { StreamLanguage } from "@codemirror/language";
+import { vbScript } from "@codemirror/legacy-modes/mode/vbscript";
 
 export default {
-  language: () => StreamLanguage.define(vbScript)
-}
+  language: () => StreamLanguage.define(vbScript),
+};

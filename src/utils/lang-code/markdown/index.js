@@ -1,5 +1,5 @@
-import { markdown } from '@codemirror/lang-markdown'
+import { markdown } from "@codemirror/lang-markdown";
 
 export default {
-  language: markdown
-}
+  language: markdown,
+};

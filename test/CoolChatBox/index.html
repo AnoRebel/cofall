@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700,300"
+      rel="stylesheet"
+      type="text/css"
+    />
+
+    <script src="https://use.typekit.net/hoy3lrg.js"></script>
+    <script>
+      try {
+        Typekit.load({ async: true });
+        console.log("Typekit Loaded!");
+      } catch (e) {
+        console.log("Typekit Loading Failed: " + e);
+      }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet prefetch"
+      href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css"
+    />
+    <link
+      rel="stylesheet prefetch"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body>
+    <div id="frame">
+      <div id="sidepanel">
+        <div id="profile">
+          <div class="wrap">
+            <img
+              id="profile-img"
+              src="http://emilcarlsson.se/assets/mikeross.png"
+              class="online"
+              alt=""
+            />
+            <p>Mike Ross</p>
+            <i class="fa fa-chevron-down expand-button" aria-hidden="true"></i>
+            <div id="status-options">
+              <ul>
+                <li id="status-online" class="active">
+                  <span class="status-circle"></span>
+                  <p>Online</p>
+                </li>
+                <li id="status-away">
+                  <span class="status-circle"></span>
+                  <p>Away</p>
+                </li>
+                <li id="status-busy">
+                  <span class="status-circle"></span>
+                  <p>Busy</p>
+                </li>
+                <li id="status-offline">
+                  <span class="status-circle"></span>
+                  <p>Offline</p>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div id="contacts">
+          <ul>
+            <li class="contact active">
+              <div class="wrap">
+                <span class="contact-status online"></span>
+                <img src="http://emilcarlsson.se/assets/louislitt.png" alt="" />
+                <div class="meta">
+                  <p class="name">Louis Litt</p>
+                  <p class="preview">You just got LITT up, Mike.</p>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div id="bottom-bar">
+          <button id="addcontact">
+            <i class="fa fa-user-plus fa-fw" aria-hidden="true"></i> <span>Add contact</span>
+          </button>
+          <button id="settings">
+            <i class="fa fa-cog fa-fw" aria-hidden="true"></i> <span>Settings</span>
+          </button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="contact-profile">
+          <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
+          <p>Harvey Specter</p>
+        </div>
+        <div class="messages">
+          <ul>
+            <li class="sent">
+              <img src="http://emilcarlsson.se/assets/mikeross.png" alt="" />
+              <p>
+                How the hell am I supposed to get a jury to believe you when I am not even sure that
+                I do?!
+              </p>
+            </li>
+            <li class="replies">
+              <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
+              <p>When you're backed against the wall, break the god damn thing down.</p>
+            </li>
+          </ul>
+        </div>
+        <div class="message-input">
+          <div class="wrap">
+            <input type="text" placeholder="Write your message..." />
+            <i class="fa fa-paperclip attachment" aria-hidden="true"></i>
+            <button class="submit"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+      integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+      crossorigin="anonymous"
+    ></script>
+    <script type="text/javascript" src="./index.js"></script>
+  </body>
+</html>

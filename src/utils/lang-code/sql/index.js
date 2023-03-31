@@ -1,5 +1,5 @@
-import { sql } from '@codemirror/lang-sql'
+import { sql } from "@codemirror/lang-sql";
 
 export default {
-  language: sql
-}
+  language: sql,
+};
