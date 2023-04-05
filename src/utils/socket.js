@@ -1,16 +1,21 @@
+import * as DetectRTC from "@/utils/rtc/DetectRTC";
+import * as RecordRTC from "@/utils/rtc/RecordRTC";
+import * as FileBufferReader from "@/utils/rtc/FileBufferReader";
+import * as FileSelector from "@/utils/rtc/FileSelector";
+import * as Adapter from "@/utils/rtc/adapter";
 import MultiStreamsMixer from "multistreamsmixer";
 import * as RTCMultiConnection from "rtcmulticonnection";
 import { io } from "socket.io-client";
 
-const videoConstraints = {
-  width: {
-    ideal: 1280,
-  },
-  height: {
-    ideal: 720,
-  },
-  frameRate: 30,
-};
+// const videoConstraints = {
+//   width: {
+//     ideal: 1280,
+//   },
+//   height: {
+//     ideal: 720,
+//   },
+//   frameRate: 30,
+// };
 
 // Some browsers partially implement mediaDevices. We can't just assign an object
 // with getUserMedia as it would overwrite existing properties.
@@ -19,8 +24,7 @@ if (navigator.mediaDevices.getUserMedia === undefined) {
   navigator.mediaDevices.getUserMedia = function (constraints) {
     // First get ahold of the legacy getUserMedia, if present
     const getUserMedia = navigator.getUserMedia ||
-      navigator.webkitGetUserMedia ||
-      navigator.mozGetUserMedia;
+      navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
     // Some browsers just don't implement it - return a rejected promise with an error
     // to keep a consistent interface
@@ -134,4 +138,16 @@ const getCameraAndScreen = async (camera, screen) => {
   return { mixer };
 };
 
-export { getCamera, getCameraAndScreen, getMic, getScreen, useRTC, useSocket };
+export {
+  Adapter,
+  DetectRTC,
+  FileBufferReader,
+  FileSelector,
+  getCamera,
+  getCameraAndScreen,
+  getMic,
+  getScreen,
+  RecordRTC,
+  useRTC,
+  useSocket,
+};
