@@ -7,17 +7,19 @@ import {
   Cog6ToothIcon,
 } from "@heroicons/vue/24/solid";
 import { Icon } from "@iconify/vue";
+
+// import { useSocket, useRTC } from "@/utils/socket";
 </script>
 
 <template>
   <div class="group relative h-4/5 w-full rounded bg-gray-500 p-2">
     <div
-      class="invisible absolute top-4 left-1/2 w-fit -translate-x-1/2 transform rounded bg-slate-900/40 p-2 text-slate-100 shadow transition-all group-hover:visible"
+      class="invisible absolute left-1/2 top-4 w-fit -translate-x-1/2 transform rounded bg-slate-900/40 p-2 text-slate-100 shadow transition-all group-hover:visible"
     >
       Icon 03:45
     </div>
     Calls
-    <div class="absolute left-0 right-0 bottom-4 flex w-full items-center justify-center space-x-3">
+    <div class="absolute bottom-4 left-0 right-0 flex w-full items-center justify-center space-x-3">
       <div class="control-btn">
         <Icon icon="fa6-solid:microphone-slash" class="m-3" />
         <!-- <Icon icon="fa6-solid:microphone" class="m-2" /> -->

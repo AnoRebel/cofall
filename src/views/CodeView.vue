@@ -3,7 +3,7 @@ import { reactive, computed, shallowRef, onBeforeMount } from "vue";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { Theme, useTheme } from "@/composables/theme";
 import { Loading, ToolBar, Editor } from "@/components";
-import languages from "@/composables/languages";
+import languages from "@/utils/languages";
 
 const config = reactive({
   disabled: false,
