@@ -23,16 +23,14 @@ import { io } from "socket.io-client";
 if (navigator.mediaDevices.getUserMedia === undefined) {
   navigator.mediaDevices.getUserMedia = function (constraints) {
     // First get ahold of the legacy getUserMedia, if present
-    const getUserMedia = navigator.getUserMedia ||
-      navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    const getUserMedia =
+      navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
     // Some browsers just don't implement it - return a rejected promise with an error
     // to keep a consistent interface
     if (!getUserMedia) {
       alert("getUserMedia API is not supported by this browser.");
-      return Promise.reject(
-        new Error("getUserMedia is not implemented in this browser"),
-      );
+      return Promise.reject(new Error("getUserMedia is not implemented in this browser"));
     }
 
     // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
@@ -48,17 +46,14 @@ if (navigator.mediaDevices.getUserMedia === undefined) {
 if (navigator.mediaDevices.getDisplayMedia === undefined) {
   navigator.mediaDevices.getDisplayMedia = function (constraints) {
     // First get ahold of the legacy getUserMedia, if present
-    const getDisplayMedia = navigator.getDisplayMedia ||
-      navigator.webkitGetDisplayMedia ||
-      navigator.mozGetDisplayMedia;
+    const getDisplayMedia =
+      navigator.getDisplayMedia || navigator.webkitGetDisplayMedia || navigator.mozGetDisplayMedia;
 
     // Some browsers just don't implement it - return a rejected promise with an error
     // to keep a consistent interface
     if (!getDisplayMedia) {
       alert("getDisplayMedia API is not supported by this browser.");
-      return Promise.reject(
-        new Error("getDisplayMedia is not implemented in this browser"),
-      );
+      return Promise.reject(new Error("getDisplayMedia is not implemented in this browser"));
     }
 
     // Otherwise, wrap the call to the old navigator.getDisplayMedia with a Promise
@@ -124,7 +119,7 @@ const getCamera = async (opts = { video: true, audio: false }) => {
   return { camera };
 };
 
-const getMic = async (opts = { video: false, audio: true }) => {
+const getAudio = async (opts = { video: false, audio: true }) => {
   const audio = await navigator.mediaDevices.getUserMedia(opts);
   return { audio };
 };
@@ -143,9 +138,9 @@ export {
   DetectRTC,
   FileBufferReader,
   FileSelector,
+  getAudio,
   getCamera,
   getCameraAndScreen,
-  getMic,
   getScreen,
   RecordRTC,
   useRTC,

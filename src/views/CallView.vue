@@ -1,4 +1,5 @@
 <script setup>
+import { onMounted } from "vue";
 import {
   // ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
@@ -8,13 +9,19 @@ import {
 } from "@heroicons/vue/24/solid";
 import { Icon } from "@iconify/vue";
 
-// import { useSocket, useRTC } from "@/utils/socket";
+import { useSocket, useRTC } from "@/utils/socket";
+
+onMounted(() => {
+  const { socket } = useSocket();
+  const { rtc } = useRTC();
+  console.log(socket, "|---|", rtc);
+});
 </script>
 
 <template>
   <div class="group relative h-4/5 w-full rounded bg-gray-500 p-2">
     <div
-      class="invisible absolute left-1/2 top-4 w-fit -translate-x-1/2 transform rounded bg-slate-900/40 p-2 text-slate-100 shadow transition-all group-hover:visible"
+      class="invisible absolute left-1/2 top-4 w-fit -translate-x-1/2 transform rounded bg-slate-900/25 p-2 text-slate-100 shadow transition-all group-hover:visible"
     >
       Icon 03:45
     </div>
