@@ -6,6 +6,13 @@ import * as Adapter from "@/utils/rtc/adapter";
 import MultiStreamsMixer from "multistreamsmixer";
 import * as RTCMultiConnection from "rtcmulticonnection";
 import { io } from "socket.io-client";
+import { WebrtcProvider } from "y-webrtc";
+import * as Y from "yjs";
+import { ref } from "vue";
+
+const pingTimeout = 20000;
+const pingInterval = 25000;
+const pongReceived = ref(true);
 
 // const videoConstraints = {
 //   width: {
@@ -23,14 +30,16 @@ import { io } from "socket.io-client";
 if (navigator.mediaDevices.getUserMedia === undefined) {
   navigator.mediaDevices.getUserMedia = function (constraints) {
     // First get ahold of the legacy getUserMedia, if present
-    const getUserMedia =
-      navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    const getUserMedia = navigator.getUserMedia ||
+      navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
     // Some browsers just don't implement it - return a rejected promise with an error
     // to keep a consistent interface
     if (!getUserMedia) {
       alert("getUserMedia API is not supported by this browser.");
-      return Promise.reject(new Error("getUserMedia is not implemented in this browser"));
+      return Promise.reject(
+        new Error("getUserMedia is not implemented in this browser"),
+      );
     }
 
     // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
@@ -46,14 +55,16 @@ if (navigator.mediaDevices.getUserMedia === undefined) {
 if (navigator.mediaDevices.getDisplayMedia === undefined) {
   navigator.mediaDevices.getDisplayMedia = function (constraints) {
     // First get ahold of the legacy getUserMedia, if present
-    const getDisplayMedia =
-      navigator.getDisplayMedia || navigator.webkitGetDisplayMedia || navigator.mozGetDisplayMedia;
+    const getDisplayMedia = navigator.getDisplayMedia ||
+      navigator.webkitGetDisplayMedia || navigator.mozGetDisplayMedia;
 
     // Some browsers just don't implement it - return a rejected promise with an error
     // to keep a consistent interface
     if (!getDisplayMedia) {
       alert("getDisplayMedia API is not supported by this browser.");
-      return Promise.reject(new Error("getDisplayMedia is not implemented in this browser"));
+      return Promise.reject(
+        new Error("getDisplayMedia is not implemented in this browser"),
+      );
     }
 
     // Otherwise, wrap the call to the old navigator.getDisplayMedia with a Promise
@@ -67,6 +78,39 @@ const useSocket = () => {
   const socket = io(import.meta.env.VITE_SOCKET_URL);
   return {
     socket,
+  };
+};
+
+const useRTCProvider = (name, ydoc) => {
+  let tmp = import.meta.env.VITE_SOCKET_URL.toString().replace("http", "")
+    .replace("https", "");
+  // OR /socket.io/?EIO=3&transport=websocket
+  const provider = new WebrtcProvider(name, ydoc, {
+    signaling: [`ws${tmp}/socket.io/?EIO=4&transport=websocket`],
+  });
+  const conn = provider.signalingConns[0];
+  // Send connection message to WebSocket
+  conn.send("40");
+  // Send upgrade message to WebSocket
+  conn.send("5");
+  // Period reply to the Ping from WebSocket
+  const pingInterval = setInterval(() => {
+    if (!pongReceived.value) {
+      conn.disconnect();
+      clearInterval(pingInterval);
+    } else {
+      pongReceived.value = false;
+      try {
+        // Send a pong back to WebSocket
+        conn.send("3");
+      } catch (e) {
+        conn.disconnect();
+      }
+    }
+  }, pingTimeout);
+
+  return {
+    provider,
   };
 };
 
@@ -144,5 +188,6 @@ export {
   getScreen,
   RecordRTC,
   useRTC,
+  useRTCProvider,
   useSocket,
 };

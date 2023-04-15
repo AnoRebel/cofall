@@ -1,12 +1,21 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
-import { reactive, shallowRef, computed, watch, onMounted } from "vue";
-import { redo, undo } from "@codemirror/commands";
+import { reactive, shallowRef, computed } from "vue";
 import { Codemirror } from "vue-codemirror";
+import { redo, undo, indentWithTab } from "@codemirror/commands";
+import { EditorView, keymap, placeholder } from "@codemirror/view";
+import { Compartment, EditorSelection, EditorState, StateEffect } from "@codemirror/state";
+import {
+  diagnosticCount as linterDagnosticCount,
+  forceLinting,
+  linter,
+  lintGutter,
+} from "@codemirror/lint";
 
 import * as Y from "yjs";
 // @ts-ignore
 import { yCollab } from "y-codemirror.next";
-import { WebrtcProvider } from "y-webrtc";
+import { useRTCProvider } from "@/utils/socket";
 
 const props = defineProps({
   config: {
@@ -42,7 +51,7 @@ const randomInt = (min, max) => {
 const userColor = usercolors[randomInt(0, usercolors.length - 1)];
 
 const ydoc = new Y.Doc();
-const provider = new WebrtcProvider("cofall", ydoc);
+const { provider } = useRTCProvider("cofall", ydoc);
 const ytext = ydoc.getText("codemirror");
 
 const undoManager = new Y.UndoManager(ytext);
@@ -90,19 +99,17 @@ const handleReady = ({ view }) => {
 };
 
 // https://github.com/codemirror/commands/blob/main/test/test-history.ts
-const handleUndo = () => {
+const handleUndo = () =>
   undo({
     state: cmView.value.state,
     dispatch: cmView.value.dispatch,
   });
-};
 
-const handleRedo = () => {
+const handleRedo = () =>
   redo({
     state: cmView.value.state,
     dispatch: cmView.value.dispatch,
   });
-};
 
 const state = reactive({
   lines: null,
@@ -121,15 +128,6 @@ const handleStateUpdate = viewUpdate => {
   state.lines = viewUpdate.state.doc.lines;
   // log('viewUpdate', viewUpdate)
 };
-
-onMounted(() => {
-  watch(
-    () => props.code,
-    _code => {
-      code.value = _code;
-    }
-  );
-});
 </script>
 
 <template>
