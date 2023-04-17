@@ -30,16 +30,14 @@ const pongReceived = ref(true);
 if (navigator.mediaDevices.getUserMedia === undefined) {
   navigator.mediaDevices.getUserMedia = function (constraints) {
     // First get ahold of the legacy getUserMedia, if present
-    const getUserMedia = navigator.getUserMedia ||
-      navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    const getUserMedia =
+      navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
     // Some browsers just don't implement it - return a rejected promise with an error
     // to keep a consistent interface
     if (!getUserMedia) {
       alert("getUserMedia API is not supported by this browser.");
-      return Promise.reject(
-        new Error("getUserMedia is not implemented in this browser"),
-      );
+      return Promise.reject(new Error("getUserMedia is not implemented in this browser"));
     }
 
     // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
@@ -55,16 +53,14 @@ if (navigator.mediaDevices.getUserMedia === undefined) {
 if (navigator.mediaDevices.getDisplayMedia === undefined) {
   navigator.mediaDevices.getDisplayMedia = function (constraints) {
     // First get ahold of the legacy getUserMedia, if present
-    const getDisplayMedia = navigator.getDisplayMedia ||
-      navigator.webkitGetDisplayMedia || navigator.mozGetDisplayMedia;
+    const getDisplayMedia =
+      navigator.getDisplayMedia || navigator.webkitGetDisplayMedia || navigator.mozGetDisplayMedia;
 
     // Some browsers just don't implement it - return a rejected promise with an error
     // to keep a consistent interface
     if (!getDisplayMedia) {
       alert("getDisplayMedia API is not supported by this browser.");
-      return Promise.reject(
-        new Error("getDisplayMedia is not implemented in this browser"),
-      );
+      return Promise.reject(new Error("getDisplayMedia is not implemented in this browser"));
     }
 
     // Otherwise, wrap the call to the old navigator.getDisplayMedia with a Promise
@@ -74,28 +70,38 @@ if (navigator.mediaDevices.getDisplayMedia === undefined) {
   };
 }
 
-const useSocket = () => {
-  const socket = io(import.meta.env.VITE_SOCKET_URL);
+const useSocket = (url = import.meta.env.VITE_SOCKET_URL) => {
+  const socket = io(url);
   return {
     socket,
   };
 };
 
 const useRTCProvider = (name, ydoc) => {
-  let tmp = import.meta.env.VITE_SOCKET_URL.toString().replace("http", "")
-    .replace("https", "");
+  let tmp = import.meta.env.VITE_SOCKET_URL.toString()
+    .replace("http://", "")
+    .replace("https://", "");
   // OR /socket.io/?EIO=3&transport=websocket
-  const provider = new WebrtcProvider(name, ydoc, {
-    signaling: [`ws${tmp}/socket.io/?EIO=4&transport=websocket`],
-  });
+  const server = `ws://${tmp}/socket.io/?EIO=4&transport=websocket`;
+  const provider = new WebrtcProvider(name, ydoc);
   const conn = provider.signalingConns[0];
-  // Send connection message to WebSocket
-  conn.send("40");
-  // Send upgrade message to WebSocket
-  conn.send("5");
+  console.info(new WebSocket(server));
+  // Connection opened
+  // conn.addEventListener("open", () => {
+  //   // Send connection message to WebSocket
+  //   conn.send("40");
+  //   // Send upgrade message to WebSocket
+  //   conn.send("5");
+  // });
   // Period reply to the Ping from WebSocket
   const pingInterval = setInterval(() => {
     if (!pongReceived.value) {
+      conn.removeEventListener("open", () => {
+        // Send connection message to WebSocket
+        conn.send("40");
+        // Send upgrade message to WebSocket
+        conn.send("5");
+      });
       conn.disconnect();
       clearInterval(pingInterval);
     } else {
@@ -104,6 +110,12 @@ const useRTCProvider = (name, ydoc) => {
         // Send a pong back to WebSocket
         conn.send("3");
       } catch (e) {
+        conn.removeEventListener("open", () => {
+          // Send connection message to WebSocket
+          conn.send("40");
+          // Send upgrade message to WebSocket
+          conn.send("5");
+        });
         conn.disconnect();
       }
     }
