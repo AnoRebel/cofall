@@ -40,6 +40,11 @@ function hark(stream, options) {
     window.audioContext00 = new audioContextType();
   }
 
+  // use a single audio context due to hardware limits
+  var audioContext = null;
+  // Ensure that just a single AudioContext is internally created
+  audioContext = options.audioContext || audioContext || new audioContextType();
+
   const gainNode = audioContext00.createGain();
   gainNode.connect(audioContext00.destination);
   // don't play for self
