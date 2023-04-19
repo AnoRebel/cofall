@@ -35,6 +35,8 @@ const languages = {
   typescript,
 };
 
-Object.keys(languages).forEach(name => hljs.registerLanguage(name, languages[name]));
+Object.keys(languages).forEach((name: any) =>
+  hljs.registerLanguage(name, languages[name])
+);
 
 export default hljsVuePlugin;

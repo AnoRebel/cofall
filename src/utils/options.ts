@@ -179,4 +179,4 @@ const fileExts = {
   fortran: "f",
 };
 
-export { modeOptions, themeOptions, fileExts };
+export { fileExts, modeOptions };
