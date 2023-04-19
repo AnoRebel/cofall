@@ -1,3 +1,4 @@
+/// <reference types="webrtc" />
 import * as DetectRTC from "@/utils/rtc/DetectRTC";
 import * as RecordRTC from "@/utils/rtc/RecordRTC";
 import * as FileBufferReader from "@/utils/rtc/FileBufferReader";
@@ -6,13 +7,7 @@ import * as Adapter from "@/utils/rtc/adapter";
 import MultiStreamsMixer from "multistreamsmixer";
 import * as RTCMultiConnection from "rtcmulticonnection";
 import { io } from "socket.io-client";
-import { WebrtcProvider } from "y-webrtc";
-import * as Y from "yjs";
-import { ref } from "vue";
-
-const pingTimeout = 20000;
-const pingInterval = 25000;
-const pongReceived = ref(true);
+import { WebrtcProvider } from "@/utils/y-webrtc";
 
 // const videoConstraints = {
 //   width: {
@@ -28,21 +23,25 @@ const pongReceived = ref(true);
 // with getUserMedia as it would overwrite existing properties.
 // Here, we will just add the getUserMedia property if it's missing.
 if (navigator.mediaDevices.getUserMedia === undefined) {
-  navigator.mediaDevices.getUserMedia = function (constraints) {
+  navigator.mediaDevices.getUserMedia = (
+    constraints?: MediaStreamConstraints | undefined,
+  ): Promise<MediaStream> => {
     // First get ahold of the legacy getUserMedia, if present
-    const getUserMedia =
-      navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    const getUserMedia = navigator.getUserMedia ||
+      navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
     // Some browsers just don't implement it - return a rejected promise with an error
     // to keep a consistent interface
     if (!getUserMedia) {
       alert("getUserMedia API is not supported by this browser.");
-      return Promise.reject(new Error("getUserMedia is not implemented in this browser"));
+      return Promise.reject(
+        new Error("getUserMedia is not implemented in this browser"),
+      );
     }
 
     // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
     return new Promise((resolve, reject) => {
-      getUserMedia.call(navigator, constraints, resolve, reject);
+      getUserMedia.call(navigator, constraints || {}, resolve, reject);
     });
   };
 }
@@ -51,21 +50,25 @@ if (navigator.mediaDevices.getUserMedia === undefined) {
 // with getDisplayMedia as it would overwrite existing properties.
 // Here, we will just add the getDisplayMedia property if it's missing.
 if (navigator.mediaDevices.getDisplayMedia === undefined) {
-  navigator.mediaDevices.getDisplayMedia = function (constraints) {
+  navigator.mediaDevices.getDisplayMedia = (
+    options?: DisplayMediaStreamOptions | undefined,
+  ): Promise<MediaStream> => {
     // First get ahold of the legacy getUserMedia, if present
-    const getDisplayMedia =
-      navigator.getDisplayMedia || navigator.webkitGetDisplayMedia || navigator.mozGetDisplayMedia;
+    const getDisplayMedia = navigator.getDisplayMedia ||
+      navigator.webkitGetDisplayMedia || navigator.mozGetDisplayMedia;
 
     // Some browsers just don't implement it - return a rejected promise with an error
     // to keep a consistent interface
     if (!getDisplayMedia) {
       alert("getDisplayMedia API is not supported by this browser.");
-      return Promise.reject(new Error("getDisplayMedia is not implemented in this browser"));
+      return Promise.reject(
+        new Error("getDisplayMedia is not implemented in this browser"),
+      );
     }
 
     // Otherwise, wrap the call to the old navigator.getDisplayMedia with a Promise
     return new Promise((resolve, reject) => {
-      getDisplayMedia.call(navigator, constraints, resolve, reject);
+      getDisplayMedia.call(navigator, options || {}, resolve, reject);
     });
   };
 }
@@ -78,49 +81,9 @@ const useSocket = (url = import.meta.env.VITE_SOCKET_URL) => {
 };
 
 const useRTCProvider = (name, ydoc) => {
-  let tmp = import.meta.env.VITE_SOCKET_URL.toString()
-    .replace("http://", "")
-    .replace("https://", "");
-  // OR /socket.io/?EIO=3&transport=websocket
-  const server = `ws://${tmp}/socket.io/?EIO=4&transport=websocket`;
-  const provider = new WebrtcProvider(name, ydoc);
-  const conn = provider.signalingConns[0];
-  console.info(new WebSocket(server));
-  // Connection opened
-  // conn.addEventListener("open", () => {
-  //   // Send connection message to WebSocket
-  //   conn.send("40");
-  //   // Send upgrade message to WebSocket
-  //   conn.send("5");
-  // });
-  // Period reply to the Ping from WebSocket
-  const pingInterval = setInterval(() => {
-    if (!pongReceived.value) {
-      conn.removeEventListener("open", () => {
-        // Send connection message to WebSocket
-        conn.send("40");
-        // Send upgrade message to WebSocket
-        conn.send("5");
-      });
-      conn.disconnect();
-      clearInterval(pingInterval);
-    } else {
-      pongReceived.value = false;
-      try {
-        // Send a pong back to WebSocket
-        conn.send("3");
-      } catch (e) {
-        conn.removeEventListener("open", () => {
-          // Send connection message to WebSocket
-          conn.send("40");
-          // Send upgrade message to WebSocket
-          conn.send("5");
-        });
-        conn.disconnect();
-      }
-    }
-  }, pingTimeout);
-
+  const provider = new WebrtcProvider(name, ydoc, {
+    signaling: [import.meta.env.VITE_SOCKET_URL],
+  });
   return {
     provider,
   };

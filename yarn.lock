@@ -1117,6 +1117,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/webrtc@npm:^0.0.35":
+  version: 0.0.35
+  resolution: "@types/webrtc@npm:0.0.35"
+  checksum: df2451062f975727937ed6bd2c408bc3922bfeeca37f6d5a618204c98eb0220c6df8ed3521c613d8e9683f4d7c8e86dbe00e2adb220a9cecf0549442ebfd9746
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/eslint-plugin@npm:^5.0.0":
   version: 5.59.0
   resolution: "@typescript-eslint/eslint-plugin@npm:5.59.0"
@@ -2075,6 +2082,7 @@ __metadata:
     "@tailwindcss/forms": ^0.5.3
     "@tailwindcss/typography": ^0.5.9
     "@types/node": ^18.14.2
+    "@types/webrtc": ^0.0.35
     "@vitejs/plugin-vue": ^4.0.0
     "@vue/eslint-config-prettier": ^7.1.0
     "@vue/eslint-config-typescript": ^11.0.2
