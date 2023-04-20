@@ -147,7 +147,7 @@ const color = () => {
   }
 };
 
-const applyColor = elements => {
+const applyColor = (elements) => {
   color();
 
   r = newcolor.slice(1, 3);
@@ -169,4 +169,4 @@ const applyColor = elements => {
   }
 };
 
-export { Colors, applyColor };
+export { applyColor, Colors };

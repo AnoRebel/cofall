@@ -34,6 +34,7 @@
     "@headlessui/vue": "^1.7.13",
     "@heroicons/vue": "^2.0.17",
     "@intlify/unplugin-vue-i18n": "^0.10.0",
+    "@syncedstore/core": "^0.5.1",
     "@vueform/multiselect": "^2.6.2",
     "@vueuse/core": "^10.0.2",
     "@vueuse/integrations": "^10.0.2",
@@ -42,6 +43,7 @@
     "codemirror": "^6.0.1",
     "date-fns": "^2.29.3",
     "file-saver": "^2.0.5",
+    "lib0": "^0.2.73",
     "multistreamsmixer": "^1.2.2",
     "pinia": "^2.0.34",
     "rtcmulticonnection": "^3.7.1",
@@ -54,7 +56,8 @@
     "vue-tel-input": "^8.1.1",
     "vue3-datepicker": "^0.3.4",
     "y-codemirror.next": "^0.3.2",
-    "y-webrtc": "^10.2.5",
+    "y-indexeddb": "^9.0.10",
+    "y-protocols": "^1.0.5",
     "yjs": "^13.5.52"
   },
   "devDependencies": {
@@ -64,6 +67,7 @@
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.9",
     "@types/node": "^18.14.2",
+    "@types/simple-peer": "^9.11.5",
     "@types/webrtc": "^0.0.35",
     "@vitejs/plugin-vue": "^4.0.0",
     "@vue/eslint-config-prettier": "^7.1.0",

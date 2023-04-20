@@ -7,7 +7,11 @@ import * as Adapter from "@/utils/rtc/adapter";
 import MultiStreamsMixer from "multistreamsmixer";
 import * as RTCMultiConnection from "rtcmulticonnection";
 import { io } from "socket.io-client";
+import * as Vue from "vue";
+import { enableVueBindings, getYjsValue, syncedStore } from "@syncedstore/core";
+import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "@/utils/y-webrtc";
+import type * as Y from "yjs";
 
 // const videoConstraints = {
 //   width: {
@@ -80,12 +84,31 @@ const useSocket = (url = import.meta.env.VITE_SOCKET_URL) => {
   };
 };
 
-const useRTCProvider = (name, ydoc) => {
+const useRTCProvider = (name: string, ydoc: Y.Doc) => {
   const provider = new WebrtcProvider(name, ydoc, {
     signaling: [import.meta.env.VITE_SOCKET_URL],
   });
+  const persistence = new IndexeddbPersistence(name, ydoc);
+  persistence.whenSynced.then(() => {
+    console.log("loaded data from indexed db");
+  });
+  persistence.on("synced", () => {
+    console.log("content from the database is loaded");
+  });
   return {
     provider,
+    persistence,
+  };
+};
+
+const useSyncStore = (shape = {}) => {
+  localStorage.log = "true";
+  enableVueBindings(Vue);
+  const store = syncedStore(shape);
+  const doc = getYjsValue(store);
+  return {
+    doc,
+    store,
   };
 };
 
@@ -143,7 +166,7 @@ const getAudio = async (opts = { video: false, audio: true }) => {
   return { audio };
 };
 
-const getCameraAndScreen = async (camera, screen) => {
+const getCameraAndScreen = async (camera: MediaStream, screen: MediaStream) => {
   const mixer = new MultiStreamsMixer([camera, screen]);
   // mixer.frameInterval = 1;
   // mixer.startDrawingFrames();
@@ -165,4 +188,5 @@ export {
   useRTC,
   useRTCProvider,
   useSocket,
+  useSyncStore,
 };
