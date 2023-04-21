@@ -1,13 +1,17 @@
 {
   "extends": "@vue/tsconfig/tsconfig.web.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "include": ["env.d.ts", "src/types/*.d.ts", "src/**/*", "src/**/*.vue"],
   "compilerOptions": {
+    "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "typeRoots": [
+      "./src/types",
+      "node_modules/@types"
+    ]
   },
-
   "references": [
     {
       "path": "./tsconfig.node.json"

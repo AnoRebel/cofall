@@ -1,10 +1,10 @@
 <!-- eslint-disable vue/multi-word-component-names -->
-<script setup>
+<script setup lang="ts">
 import { reactive, shallowRef, computed } from "vue";
 import { Codemirror } from "vue-codemirror";
 import { redo, undo, indentWithTab } from "@codemirror/commands";
-import { EditorView, keymap, placeholder } from "@codemirror/view";
-import { Compartment, EditorSelection, EditorState, StateEffect } from "@codemirror/state";
+import { keymap, placeholder } from "@codemirror/view";
+import { Compartment, EditorSelection, StateEffect } from "@codemirror/state";
 import {
   diagnosticCount as linterDagnosticCount,
   forceLinting,
@@ -13,17 +13,14 @@ import {
 } from "@codemirror/lint";
 
 import * as Y from "yjs";
+import { getYjsValue, getYjsDoc } from "@syncedstore/core";
 // @ts-ignore
 import { yCollab } from "y-codemirror.next";
-import { useRTCProvider } from "@/utils/socket";
+import { useSyncedStore, useRTCProvider } from "@/utils";
 
 const props = defineProps({
   config: {
     type: Object,
-    required: true,
-  },
-  code: {
-    type: String,
     required: true,
   },
   theme: [Object, Array],
@@ -50,9 +47,10 @@ const randomInt = (min, max) => {
 // select a random color for this user
 const userColor = usercolors[randomInt(0, usercolors.length - 1)];
 
-const ydoc = new Y.Doc();
-const { provider } = useRTCProvider("cofall", ydoc);
-const ytext = ydoc.getText("codemirror");
+const store = useSyncedStore({ code: "" });
+const { provider } = useRTCProvider("cofall", getYjsDoc(store));
+// const ytext = (ydoc as Y.Doc).getText("codemirror");
+const ytext = getYjsValue(store.code);
 
 const undoManager = new Y.UndoManager(ytext);
 
@@ -62,21 +60,7 @@ provider.awareness.setLocalStateField("user", {
   colorLight: userColor.light,
 });
 
-// FIX
-// const state = EditorState.create({
-//   doc: ytext.toString(),
-//   extensions: [
-//     basicSetup,
-//     javascript(),
-//     yCollab(ytext, provider.awareness, { undoManager })
-//   ]
-// })
-//
-// const view = new EditorView({ state, parent: /** @type {HTMLElement} */ (document.querySelector('#editor')) });
-//
-
 const log = console.log;
-const code = shallowRef(props.code);
 const extensions = computed(() => {
   const result = [yCollab(ytext, provider.awareness, { undoManager })];
   if (props.language) {
@@ -134,7 +118,7 @@ const handleStateUpdate = viewUpdate => {
   <div class="editor">
     <div class="main">
       <codemirror
-        v-model="code"
+        v-model="ytext"
         :style="{
           width: preview ? '50%' : '100%',
           height: config.height,
@@ -156,7 +140,9 @@ const handleStateUpdate = viewUpdate => {
         v-if="preview"
         class="code"
         :style="{ height: config.height, width: preview ? '50%' : '0px' }"
-        >{{ code }}</pre
+        >
+        {{ ytext }}
+        </pre
       >
     </div>
     <div class="divider"></div>

@@ -18,7 +18,7 @@ import * as syncProtocol from "y-protocols/sync";
 import * as awarenessProtocol from "y-protocols/awareness";
 
 import * as cryptoutils from "@/utils/y-webrtc/crypto";
-import { useSocket } from "@/utils/socket";
+import { useSocket } from "@/utils";
 
 const log = logging.createModuleLogger("y-webrtc");
 
@@ -30,12 +30,12 @@ const messageBcPeerId = 4;
 /**
  * @type {Map<string, SignalingConn>}
  */
-const signalingConns = new Map();
+const signalingConns: Map<string, SignalingConn> = new Map();
 
 /**
  * @type {Map<string,Room>}
  */
-const rooms = new Map();
+const rooms: Map<string, Room> = new Map();
 
 /**
  * @param {Room} room
@@ -659,7 +659,7 @@ export class SignalingConn {
 /**
  * @extends Observable<string>
  */
-export class WebrtcProvider extends Observable {
+export class WebrtcProvider extends Observable<string> {
   /**
    * @param {string} roomName
    * @param {Y.Doc} doc

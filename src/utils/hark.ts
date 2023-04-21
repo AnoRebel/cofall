@@ -1,41 +1,22 @@
+/// <reference types="hark" />
 // original source code is taken from:
 // https://github.com/SimpleWebRTC/hark
 // copyright goes to &yet team
 // edited by Muaz Khan for RTCMultiConnection.js
 // And again, by AnoRebel, for Cofall
 
-// "files": ["./declarations.d.ts"], in tsconfig.json
 declare global {
   interface Window {
     webkitAudioContext: typeof AudioContext;
   }
 }
-interface HarkOptions {
-  smoothing?: number;
-  play?: any;
-  history?: number;
-  interval?: number;
-  threshold?: number;
-  audioContext?: AudioContext;
-}
-interface Harker {
-  events?: any;
-  on?: (event: any, callback: any) => void;
-  emit?: (...args: any) => void;
-  speaking?: boolean;
-  setThreshold?: (t: number) => void;
-  setInterval?: (t: number) => void;
-  stop?: () => void;
-  speakingHistory?: Array<number>;
-}
-
 const hark = (
   stream: MediaStream,
-  options: HarkOptions,
-): Harker => {
+  options: import("@/types/hark").HarkOptions,
+): import("@/types/hark").Harker => {
   const audioContextType = window.webkitAudioContext || window.AudioContext;
 
-  const harker: Harker = {};
+  const harker: import("@/types/hark").Harker = {};
   harker.events = {};
   harker.on = (event, callback) => {
     harker.events[event] = callback;
