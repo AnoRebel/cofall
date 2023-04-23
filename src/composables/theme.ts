@@ -1,4 +1,4 @@
-import { inject, ref, readonly } from "vue";
+import { inject, readonly, ref } from "vue";
 import storage from "@/composables/storage";
 
 export const Theme = {
@@ -25,9 +25,9 @@ export const getLocalTheme = () => {
 };
 
 const ThemeSymbol = Symbol("theme");
-const createThemeStore = defaultTheme => {
+const createThemeStore = (defaultTheme) => {
   const theme = ref(defaultTheme);
-  const set = newTheme => {
+  const set = (newTheme: string) => {
     if ([Theme.Light, Theme.Dark].includes(newTheme)) {
       if (newTheme !== theme.value) {
         theme.value = newTheme;
@@ -47,11 +47,11 @@ const createThemeStore = defaultTheme => {
   };
 };
 
-export const createTheme = defaultTheme => {
+export const createTheme = (defaultTheme: string) => {
   const themeStore = createThemeStore(defaultTheme);
   return {
     ...themeStore,
-    install(app) {
+    install(app: any) {
       app.provide(ThemeSymbol, themeStore);
     },
   };

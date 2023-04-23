@@ -90,7 +90,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/lang-css@npm:^6.0.0":
+"@codemirror/lang-css@npm:^6.0.0, @codemirror/lang-css@npm:^6.1.1":
   version: 6.1.1
   resolution: "@codemirror/lang-css@npm:6.1.1"
   dependencies:
@@ -226,6 +226,19 @@ __metadata:
     "@codemirror/language": ^6.0.0
     "@lezer/rust": ^1.0.0
   checksum: 8a439944cb22159b0b3465ca4fa4294c69843219d5d30e278ae6df8e48f30a7a9256129723c025ec9b5e694d31a3560fb004300b125ffcd81c22d13825845170
+  languageName: node
+  linkType: hard
+
+"@codemirror/lang-sass@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "@codemirror/lang-sass@npm:6.0.1"
+  dependencies:
+    "@codemirror/lang-css": ^6.1.1
+    "@codemirror/language": ^6.0.0
+    "@codemirror/state": ^6.0.0
+    "@lezer/common": ^1.0.2
+    "@lezer/sass": ^1.0.0
+  checksum: 1c5d472508f922c99077b1015818917a94ce7e558faa494d57458e1d89ae3a2664b9248cb3dac2b9ee3f6667fdbbb19e58b1abcde0bc56d9d4445cc89ee5be8f
   languageName: node
   linkType: hard
 
@@ -787,7 +800,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lezer/common@npm:^1.0.0":
+"@lezer/common@npm:^1.0.0, @lezer/common@npm:^1.0.2":
   version: 1.0.2
   resolution: "@lezer/common@npm:1.0.2"
   checksum: bbcc58e07be02652bf0700d2856042ec089d5be0b95893d628b3e18192ade864fac83b61b19653e10b9f1472261a178b12318d934e9004edd5483a577c0db56b
@@ -920,6 +933,16 @@ __metadata:
     "@lezer/highlight": ^1.0.0
     "@lezer/lr": ^1.0.0
   checksum: 0c42f415674f60ca2ef4274b446577621cdeec8f31168b1c3b90888a4377c513f02a89ee346421c264ec3a77fe2fa3e134996be6463ed506dbbc79b4b4505375
+  languageName: node
+  linkType: hard
+
+"@lezer/sass@npm:^1.0.0":
+  version: 1.0.1
+  resolution: "@lezer/sass@npm:1.0.1"
+  dependencies:
+    "@lezer/highlight": ^1.0.0
+    "@lezer/lr": ^1.0.0
+  checksum: faf286e0da81d88fb1d84db12002f4f23eb06514afb03f7de0c8bc7d4b4113dfc279f3a985b5449aed8995e410e3d856c5e481876790ec607845b2478cbb9ca2
   languageName: node
   linkType: hard
 
@@ -1107,6 +1130,13 @@ __metadata:
   version: 1.0.3
   resolution: "@tsconfig/node16@npm:1.0.3"
   checksum: 3a8b657dd047495b7ad23437d6afd20297ce90380ff0bdee93fc7d39a900dbd8d9e26e53ff6b465e7967ce2adf0b218782590ce9013285121e6a5928fbd6819f
+  languageName: node
+  linkType: hard
+
+"@tsconfig/node18@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@tsconfig/node18@npm:2.0.0"
+  checksum: 83c44d666c0d4b4f2f1da60b50fec48acdd85476c590cdc4d13f3332b9d9fef1ca9818f9d5a01c24f56f532335dc5d22c79b1afc9a9eed883e07f4047615148c
   languageName: node
   linkType: hard
 
@@ -2163,6 +2193,7 @@ __metadata:
     "@codemirror/lang-php": ^6.0.1
     "@codemirror/lang-python": ^6.1.2
     "@codemirror/lang-rust": ^6.0.1
+    "@codemirror/lang-sass": ^6.0.1
     "@codemirror/lang-sql": ^6.4.1
     "@codemirror/lang-xml": ^6.0.2
     "@codemirror/language": ^6.6.0
@@ -2179,6 +2210,7 @@ __metadata:
     "@tailwindcss/aspect-ratio": ^0.4.2
     "@tailwindcss/forms": ^0.5.3
     "@tailwindcss/typography": ^0.5.9
+    "@tsconfig/node18": ^2.0.0
     "@types/debug": ^4.1.7
     "@types/events": ^3.0.0
     "@types/file-saver": ^2.0.5

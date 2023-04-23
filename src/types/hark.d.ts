@@ -10,7 +10,7 @@ declare namespace Hark {
     audioContext?: AudioContext;
   }
   interface Harker {
-    events?: {};
+    events: {};
     on?: (event: string, callback: any) => void;
     emit?: (...args: any) => void;
     speaking?: boolean;

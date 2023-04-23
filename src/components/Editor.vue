@@ -13,7 +13,7 @@ import {
 } from "@codemirror/lint";
 
 import * as Y from "yjs";
-import { getYjsValue, getYjsDoc } from "@syncedstore/core";
+import { getYjsValue, getYjsDoc, SyncedText } from "@syncedstore/core";
 // @ts-ignore
 import { yCollab } from "y-codemirror.next";
 import { useSyncedStore, useRTCProvider } from "@/utils";
@@ -38,7 +38,7 @@ const usercolors = [
   { color: "#1be7ff", light: "#1be7ff33" },
 ];
 
-const randomInt = (min, max) => {
+const randomInt = (min: number, max: number) => {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;

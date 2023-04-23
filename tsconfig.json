@@ -1,9 +1,15 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "extends": [
+    "@tsconfig/node18/tsconfig.json",
+    "@vue/tsconfig/tsconfig.json",
+    "@vue/tsconfig/tsconfig.dom.json"
+  ],
   "include": ["env.d.ts", "src/types/*.d.ts", "src/**/*", "src/**/*.vue"],
   "compilerOptions": {
     "esModuleInterop": true,
     "baseUrl": ".",
+    "allowJs": true,
+    "checkJs": true,
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -11,10 +17,5 @@
       "./src/types",
       "node_modules/@types"
     ]
-  },
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+  }
 }

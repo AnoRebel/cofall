@@ -2,6 +2,7 @@
   "name": "cofall",
   "version": "2.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "concurrently -k \"ts-node-dev -P ./server/tsconfig.json ./server/index.ts\" \"vite\"",
     "dev:ui": "vite",
@@ -24,6 +25,7 @@
     "@codemirror/lang-php": "^6.0.1",
     "@codemirror/lang-python": "^6.1.2",
     "@codemirror/lang-rust": "^6.0.1",
+    "@codemirror/lang-sass": "^6.0.1",
     "@codemirror/lang-sql": "^6.4.1",
     "@codemirror/lang-xml": "^6.0.2",
     "@codemirror/language": "^6.6.0",
@@ -70,6 +72,7 @@
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.9",
+    "@tsconfig/node18": "^2.0.0",
     "@types/debug": "^4.1.7",
     "@types/events": "^3.0.0",
     "@types/file-saver": "^2.0.5",

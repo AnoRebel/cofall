@@ -19,7 +19,7 @@ const currentLang = computed(() => languages[config.language]);
 const currentTheme = computed(() => {
   return config.theme !== "default" ? config.theme : void 0;
 });
-const ensureLanguageCode = targetLanguage => {
+const ensureLanguageCode = ( targetLanguage: string ) => {
   config.language = targetLanguage;
   // loading.value = true;
   // const delayPromise = () => new Promise(resolve => window.setTimeout(resolve, 260));
