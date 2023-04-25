@@ -1,13 +1,19 @@
 /// <reference types="webrtc" />
 import * as DetectRTC from "@/utils/rtc/DetectRTC";
 import * as RecordRTC from "@/utils/rtc/RecordRTC";
+// @ts-ignore
 import * as FileBufferReader from "@/utils/rtc/FileBufferReader";
+// @ts-ignore
 import * as FileSelector from "@/utils/rtc/FileSelector";
 import * as Adapter from "@/utils/rtc/adapter";
+// @ts-ignore
 import MultiStreamsMixer from "multistreamsmixer";
+// @ts-ignore
 import * as RTCMultiConnection from "rtcmulticonnection";
 import { io } from "socket.io-client";
+// import type Socket from "socket.io-client";
 import * as Vue from "vue";
+// @ts-ignore
 import { enableVueBindings, syncedStore } from "@syncedstore/core";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "@/utils/y-webrtc";
@@ -15,6 +21,9 @@ import type * as Y from "yjs";
 import FileSaver from "file-saver";
 import { fileExts as fileExtensions } from "./options";
 
+// REUSERS
+let socket: any;
+// REUSERS
 const save = (
   data: { code: any; title: string; lang: string },
 ): void => {
@@ -209,8 +218,10 @@ if (navigator.mediaDevices.getDisplayMedia === undefined) {
   };
 }
 
-const useSocket = (url = import.meta.env.VITE_SOCKET_URL) => {
-  const socket = io(url);
+const useSocket = (url: string = import.meta.env.VITE_SOCKET_URL) => {
+  // TODO: Rethink this logic
+  if (socket) return socket;
+  socket = io(url);
   return socket;
 };
 

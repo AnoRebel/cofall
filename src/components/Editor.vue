@@ -1,9 +1,9 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { reactive, shallowRef, computed } from "vue";
+import { ref, reactive, shallowRef, computed } from "vue";
 import { Codemirror } from "vue-codemirror";
 import { redo, undo, indentWithTab } from "@codemirror/commands";
-import { keymap, placeholder } from "@codemirror/view";
+import { ViewUpdate, keymap, placeholder } from "@codemirror/view";
 import { Compartment, EditorSelection, StateEffect } from "@codemirror/state";
 import {
   diagnosticCount as linterDagnosticCount,
@@ -13,6 +13,7 @@ import {
 } from "@codemirror/lint";
 
 import * as Y from "yjs";
+// @ts-ignore
 import { getYjsValue, getYjsDoc, SyncedText } from "@syncedstore/core";
 // @ts-ignore
 import { yCollab } from "y-codemirror.next";
@@ -47,11 +48,11 @@ const randomInt = (min: number, max: number) => {
 // select a random color for this user
 const userColor = usercolors[randomInt(0, usercolors.length - 1)];
 
-const store = useSyncedStore({ code: "" });
+const store = useSyncedStore({ data: {} });
 const { provider } = useRTCProvider("cofall", getYjsDoc(store));
 // const ytext = (ydoc as Y.Doc).getText("codemirror");
-const ytext = getYjsValue(store.code);
-
+store.data.code = new SyncedText("");
+const ytext = store.data.code;
 const undoManager = new Y.UndoManager(ytext);
 
 provider.awareness.setLocalStateField("user", {
@@ -102,7 +103,7 @@ const state = reactive({
   length: null,
 });
 
-const handleStateUpdate = viewUpdate => {
+const handleStateUpdate = (viewUpdate: ViewUpdate) => {
   // selected
   const ranges = viewUpdate.state.selection.ranges;
   state.selected = ranges.reduce((plus, range) => plus + range.to - range.from, 0);

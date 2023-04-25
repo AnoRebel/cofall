@@ -12,7 +12,8 @@ import * as math from "lib0/math";
 import { createMutex } from "lib0/mutex";
 
 import * as Y from "yjs"; // eslint-disable-line
-import Peer from "simple-peer/simplepeer.min.js";
+import Peer from "@/utils/tiny-peer";
+// import Peer from "simple-peer/simplepeer.min.js";
 
 import * as syncProtocol from "y-protocols/sync";
 import * as awarenessProtocol from "y-protocols/awareness";
@@ -40,9 +41,9 @@ const rooms: Map<string, Room> = new Map();
 /**
  * @param {Room} room
  */
-const checkIsSynced = (room) => {
+const checkIsSynced = (room: any) => {
   let synced = true;
-  room.webrtcConns.forEach((peer) => {
+  room.webrtcConns.forEach((peer: any) => {
     if (!peer.synced) {
       synced = false;
     }
@@ -561,8 +562,7 @@ export class SignalingConn {
      */
     this.providers = new Set();
     this.url = url;
-    const { socket: _socket } = useSocket(url);
-    this.socket = _socket;
+    this.socket = useSocket(url);
     this.socket.on("connect", () => {
       log(`connected (${url})`);
       const topics = Array.from(rooms.keys());

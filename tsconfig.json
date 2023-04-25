@@ -10,6 +10,7 @@
     "baseUrl": ".",
     "allowJs": true,
     "checkJs": true,
+    "types": ["node"],
     "paths": {
       "@/*": ["./src/*"]
     },
