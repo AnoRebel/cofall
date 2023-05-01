@@ -14,7 +14,7 @@ import { io } from "socket.io-client";
 // import type Socket from "socket.io-client";
 import * as Vue from "vue";
 // @ts-ignore
-import { enableVueBindings, syncedStore } from "@syncedstore/core";
+import { enableVueBindings, syncedStore, SyncedText } from "@syncedstore/core";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "@/utils/y-webrtc";
 import type * as Y from "yjs";

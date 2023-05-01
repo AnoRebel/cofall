@@ -340,7 +340,7 @@ declare namespace TinyPeer {
  * @param {Object} opts
  */
 class TinyPeer extends EventEmitter {
-  constructor(opts) {
+  constructor(opts: any) {
     opts = Object.assign({
       allowHalfOpen: false,
     }, opts);

@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { onMounted, reactive, ref, shallowRef, onBeforeUnmount } from "vue";
+import { onMounted, shallowRef, onBeforeUnmount } from "vue";
 import {StateField, EditorState, Compartment, type Extension, StateEffect, RangeSet} from "@codemirror/state";
 import {EditorView, keymap, GutterMarker, gutter, lineNumbers, drawSelection, placeholder, scrollPastEnd,
 rectangularSelection, highlightActiveLineGutter, highlightSpecialChars, tooltips, dropCursor, crosshairCursor, highlightActiveLine} from "@codemirror/view";
-import {defaultKeymap, indentWithTab, history, historyKeymap} from "@codemirror/commands";
+import {defaultKeymap, indentWithTab, history, historyKeymap, undoSelection, redoSelection} from "@codemirror/commands";
 import {
-  diagnosticCount as linterDagnosticCount,
-  forceLinting,
-  linter,
+  // diagnosticCount as linterDagnosticCount,
+  // forceLinting,
+  // linter,
   lintGutter,
   lintKeymap,
 } from "@codemirror/lint";
@@ -15,16 +15,16 @@ import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } 
 import { highlightSelectionMatches, searchKeymap } from '@codemirror/search';
 import { bracketMatching, foldGutter, foldKeymap, indentOnInput, defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { oneDark } from '@codemirror/theme-one-dark';
-import { html } from '@codemirror/lang-html';
-import { css } from '@codemirror/lang-css';
+// import { html } from '@codemirror/lang-html';
+// import { css } from '@codemirror/lang-css';
 import { javascript } from '@codemirror/lang-javascript';
 
 import * as Y from "yjs";
 // @ts-ignore
 import { getYjsValue, getYjsDoc, SyncedText } from "@syncedstore/core";
 // @ts-ignore
-import { yCollab } from "y-codemirror.next";
-import { useSocket, useSyncedStore, useRTCProvider } from "@/utils";
+import { yCollab, yUndoManagerKeymap } from "y-codemirror.next";
+import { useSyncedStore, useRTCProvider } from "@/utils";
 
 enum EventKey {
   Change = 'change',
@@ -38,11 +38,9 @@ enum EventKey {
 const container = shallowRef<HTMLDivElement>();
 const state = shallowRef<EditorState>();
 const view = shallowRef<EditorView>();
-const store = useSyncedStore({ data: {} });
+const store = useSyncedStore({ data: {}, code: "text" });
 const { provider } = useRTCProvider("cofall", getYjsDoc(store));
-// const ytext = (ydoc as Y.Doc).getText("codemirror");
-store.data.code = new SyncedText("");
-const undoManager = new Y.UndoManager(store.data.code);
+const undoManager = new Y.UndoManager(store.code);
 
 // https://codemirror.net/examples/config/
 // https://github.com/uiwjs/react-codemirror/blob/22cc81971a/src/useCodeMirror.ts#L144
@@ -129,79 +127,80 @@ provider.awareness.setLocalStateField("user", {
 });
 
 onMounted(() => {
-  console.log(useSocket("http://localhost:5000"));
   state.value = EditorState.create({
-        doc: store.data.code,
-        // selection: config.value.selection,
-        // The extensions are split into two parts, global and component prop.
-        // Only the global part is initialized here.
-        // The prop part is dynamically reconfigured after the component is mounted.
-        extensions: [
-          lineNumbers(),
-          highlightActiveLineGutter(),
-          highlightSpecialChars(),
-          history(),
-          foldGutter(),
-          drawSelection(),
-          dropCursor(),
-          EditorState.allowMultipleSelections.of(true),
-          EditorState.tabSize.of(2),
-          indentOnInput(),
-          syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-          bracketMatching(),
-          closeBrackets(),
-          autocompletion(),
-          rectangularSelection(),
-          crosshairCursor(),
-          highlightActiveLine(),
-          highlightSelectionMatches(),
-          ...breakpointGutter,
-          lintGutter(),
-          scrollPastEnd(),
-          tooltips(),
-          placeholder("Cofall..."),
-          oneDark,
-          javascript(),
-          keymap.of([
-            ...closeBracketsKeymap,
-            ...defaultKeymap,
-            ...searchKeymap,
-            ...historyKeymap,
-            ...foldKeymap,
-            ...completionKeymap,
-            ...lintKeymap,
-            indentWithTab,
-            // { key: "Tab", run: indentMore, shift: indentLess },
-          ]),
-          yCollab(store.data.code, provider.awareness, { undoManager }),
-          EditorView.updateListener.of((viewUpdate) => {
-            // https://discuss.codemirror.net/t/codemirror-6-proper-way-to-listen-for-changes/2395/11
-            // onUpdate(viewUpdate)
-            // doc changed
-            if (viewUpdate.docChanged) {
-              // onChange(viewUpdate.state.doc.toString(), viewUpdate)
-            }
-            // focus state change
-            if (viewUpdate.focusChanged) {
-              viewUpdate.view.hasFocus ? onFocus(viewUpdate) : onBlur(viewUpdate)
-            }
-          })
-        ],
-        // onFocus: (viewUpdate) => context.emit(EventKey.Focus, viewUpdate),
-        // onBlur: (viewUpdate) => context.emit(EventKey.Blur, viewUpdate),
-        // onUpdate: (viewUpdate) => context.emit(EventKey.Update, viewUpdate),
-        // onChange: (newDoc, viewUpdate) => {
-        //   if (newDoc !== props.modelValue) {
-        //     context.emit(EventKey.Change, newDoc, viewUpdate)
-        //     context.emit(EventKey.ModelUpdate, newDoc, viewUpdate)
-        //   }
-        // }
-      });
-      view.value = new EditorView({
-        state: state.value,
-        parent: container.value!,
-        // root: config.value.root
-      });
+    doc: store.code.toString(),
+    // selection: config.value.selection,
+    // The extensions are split into two parts, global and component prop.
+    // Only the global part is initialized here.
+    // The prop part is dynamically reconfigured after the component is mounted.
+    extensions: [
+      lineNumbers(),
+      highlightActiveLineGutter(),
+      highlightSpecialChars(),
+      history(),
+      foldGutter(),
+      drawSelection(),
+      dropCursor(),
+      EditorState.allowMultipleSelections.of(true),
+      EditorState.tabSize.of(2),
+      indentOnInput(),
+      syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+      bracketMatching(),
+      closeBrackets(),
+      autocompletion(),
+      rectangularSelection(),
+      crosshairCursor(),
+      highlightActiveLine(),
+      highlightSelectionMatches(),
+      ...breakpointGutter,
+      lintGutter(),
+      scrollPastEnd(),
+      tooltips(),
+      placeholder("Cofall..."),
+      oneDark,
+      javascript(),
+      keymap.of([
+        ...closeBracketsKeymap,
+        ...defaultKeymap,
+        ...searchKeymap,
+        // ...historyKeymap,
+        ...yUndoManagerKeymap,
+        ...foldKeymap,
+        ...completionKeymap,
+        ...lintKeymap,
+        indentWithTab,
+        // { key: "Ctrl+u", run: undoSelection },
+        // { key: "Ctrl+Shift+u", run: redoSelection },
+      ]),
+      yCollab(store.code, provider.awareness, { undoManager }),
+      EditorView.updateListener.of((viewUpdate) => {
+        // https://discuss.codemirror.net/t/codemirror-6-proper-way-to-listen-for-changes/2395/11
+        // onUpdate(viewUpdate)
+        // doc changed
+        if (viewUpdate.docChanged) {
+          log("OnChange", viewUpdate.state.doc.toString(), viewUpdate)
+        }
+        // focus state change
+        if (viewUpdate.focusChanged) {
+          viewUpdate.view.hasFocus ? log("onFocus", viewUpdate) : log("onBlur", viewUpdate)
+        }
+      })
+    ],
+    // onFocus: (viewUpdate) => context.emit(EventKey.Focus, viewUpdate),
+    // onBlur: (viewUpdate) => context.emit(EventKey.Blur, viewUpdate),
+    // onUpdate: (viewUpdate) => context.emit(EventKey.Update, viewUpdate),
+    // onChange: (newDoc, viewUpdate) => {
+    //   if (newDoc !== props.modelValue) {
+    //     context.emit(EventKey.Change, newDoc, viewUpdate)
+    //     context.emit(EventKey.ModelUpdate, newDoc, viewUpdate)
+    //   }
+    // }
+  });
+  view.value = new EditorView({
+    state: state.value,
+    parent: container.value!,
+    // root: config.value.root
+  });
 });
 
 const log = console.log;
