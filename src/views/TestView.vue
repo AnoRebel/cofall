@@ -70,7 +70,7 @@ const breakpointEffect = StateEffect.define<{pos: number, on: boolean}>({
 });
 
 const breakpointMarker = new class extends GutterMarker {
-  toDOM() { return document.createTextNode("💔") }
+  toDOM() { return document.createTextNode("●") }
 };
 
 const breakpointState = StateField.define<RangeSet<GutterMarker>>({
@@ -211,4 +211,17 @@ onBeforeUnmount(() => {});
 <template>
   <div>Test</div>
   <div class="codemirror" ref="container" style="display: 'contents';"></div>
+  <!-- <codemirror -->
+  <!--   v-model="code" -->
+  <!--   placeholder="Code goes here..." -->
+  <!--   :style="{ height: '400px' }" -->
+  <!--   :autofocus="true" -->
+  <!--   :indent-with-tab="true" -->
+  <!--   :tab-size="2" -->
+  <!--   :extensions="extensions" -->
+  <!--   @ready="handleReady" -->
+  <!--   @change="log('change', $event)" -->
+  <!--   @focus="log('focus', $event)" -->
+  <!--   @blur="log('blur', $event)" -->
+  <!-- /> -->
 </template>

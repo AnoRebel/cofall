@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, reactive, shallowRef, computed } from "vue";
+import { reactive, shallowRef, computed } from "vue";
 import { Codemirror } from "vue-codemirror";
 import { redo, undo, indentWithTab } from "@codemirror/commands";
 import { ViewUpdate, keymap, placeholder } from "@codemirror/view";
@@ -48,12 +48,9 @@ const randomInt = (min: number, max: number) => {
 // select a random color for this user
 const userColor = usercolors[randomInt(0, usercolors.length - 1)];
 
-const store = useSyncedStore({ data: {} });
+const store = useSyncedStore({ data: {}, code: "text" });
 const { provider } = useRTCProvider("cofall", getYjsDoc(store));
-// const ytext = (ydoc as Y.Doc).getText("codemirror");
-store.data.code = new SyncedText("");
-const ytext = store.data.code;
-const undoManager = new Y.UndoManager(ytext);
+const undoManager = new Y.UndoManager(store.code);
 
 provider.awareness.setLocalStateField("user", {
   name: "Username", // TODO: Added stored username
@@ -63,7 +60,7 @@ provider.awareness.setLocalStateField("user", {
 
 const log = console.log;
 const extensions = computed(() => {
-  const result = [yCollab(ytext, provider.awareness, { undoManager })];
+  const result = [yCollab(store.code, provider.awareness, { undoManager })];
   if (props.language) {
     result.push(props.language());
   }
@@ -119,7 +116,7 @@ const handleStateUpdate = (viewUpdate: ViewUpdate) => {
   <div class="editor">
     <div class="main">
       <codemirror
-        v-model="ytext"
+        v-model="store.code"
         :style="{
           width: preview ? '50%' : '100%',
           height: config.height,
