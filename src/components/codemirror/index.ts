@@ -19,6 +19,8 @@ import {
 import { DEFAULT_CONFIG, useGlobalConfig } from "./config";
 import { type ConfigProps, props } from "./props";
 import { EventKey, events } from "./events";
+import { useSyncedStore } from "@/utils";
+const store = useSyncedStore({ data: {}, code: "text" });
 
 export default defineComponent({
   name: "VueCodemirror",
@@ -48,7 +50,7 @@ export default defineComponent({
 
     onMounted(() => {
       state.value = createEditorState({
-        doc: props.modelValue,
+        doc: store.code.toString(),
         selection: config.value.selection,
         // The extensions are split into two parts, global and component prop.
         // Only the global part is initialized here.
@@ -58,7 +60,7 @@ export default defineComponent({
         onBlur: (viewUpdate) => context.emit(EventKey.Blur, viewUpdate),
         onUpdate: (viewUpdate) => context.emit(EventKey.Update, viewUpdate),
         onChange: (newDoc, viewUpdate) => {
-          if (newDoc !== props.modelValue) {
+          if (newDoc !== store.code.toString()) {
             context.emit(EventKey.Change, newDoc, viewUpdate);
             context.emit(EventKey.ModelUpdate, newDoc, viewUpdate);
           }
@@ -74,14 +76,14 @@ export default defineComponent({
       const editorTools = getEditorTools(view.value);
 
       // watch prop.modelValue
-      watch(
-        () => props.modelValue,
-        (newValue) => {
-          if (newValue !== editorTools.getDoc()) {
-            editorTools.setDoc(newValue);
-          }
-        },
-      );
+      // watch(
+      //   () => props.modelValue,
+      //   (newValue) => {
+      //     if (newValue !== editorTools.getDoc()) {
+      //       editorTools.setDoc(newValue);
+      //     }
+      //   },
+      // );
 
       // watch prop.extensions
       watch(
@@ -159,3 +161,5 @@ export default defineComponent({
     };
   },
 });
+
+export { store };

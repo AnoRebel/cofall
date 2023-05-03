@@ -23,16 +23,8 @@ export const configProps = {
   selection: Object as PropType<EditorStateConfig["selection"]>,
 };
 
-export const modelValueProp = {
-  modelValue: {
-    type: String,
-    default: "",
-  },
-};
-
 export const props = {
   ...configProps,
-  ...modelValueProp,
 };
 
 export type ConfigProps = ExtractPropTypes<typeof configProps>;
