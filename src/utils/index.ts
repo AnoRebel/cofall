@@ -6,19 +6,21 @@ import * as FileBufferReader from "@/utils/rtc/FileBufferReader";
 // @ts-ignore
 import * as FileSelector from "@/utils/rtc/FileSelector";
 import * as Adapter from "@/utils/rtc/adapter";
-// @ts-ignore
+/// @ts-ignore
 import MultiStreamsMixer from "multistreamsmixer";
-// @ts-ignore
+/// @ts-ignore
 import * as RTCMultiConnection from "rtcmulticonnection";
 import { io } from "socket.io-client";
 // import type Socket from "socket.io-client";
 import * as Vue from "vue";
-// @ts-ignore
+/// @ts-ignore
 import { enableVueBindings, syncedStore, SyncedText } from "@syncedstore/core";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { WebrtcProvider } from "@/utils/y-webrtc";
 import type * as Y from "yjs";
 import FileSaver from "file-saver";
+import { RangeSet, StateEffect, StateField } from "@codemirror/state";
+import { EditorView, gutter, GutterMarker } from "@codemirror/view";
 import { fileExts as fileExtensions } from "./options";
 
 // REUSERS
@@ -310,8 +312,71 @@ const getCameraAndScreen = async (camera: MediaStream, screen: MediaStream) => {
   return mixer;
 };
 
+const breakpointEffect = StateEffect.define<{ pos: number; on: boolean }>({
+  map: (val, mapping) => ({ pos: mapping.mapPos(val.pos), on: val.on }),
+});
+
+const breakpointMarker = new class extends GutterMarker {
+  toDOM() {
+    return document.createTextNode("●");
+  }
+}();
+
+const breakpointState = StateField.define<RangeSet<GutterMarker>>({
+  create() {
+    return RangeSet.empty;
+  },
+  update(set, transaction) {
+    set = set.map(transaction.changes);
+    for (const e of transaction.effects) {
+      if (e.is(breakpointEffect)) {
+        if (e.value.on) {
+          set = set.update({ add: [breakpointMarker.range(e.value.pos)] });
+        } else {
+          set = set.update({ filter: (from) => from != e.value.pos });
+        }
+      }
+    }
+    return set;
+  },
+});
+
+function toggleBreakpoint(view: EditorView, pos: number) {
+  const breakpoints = view.state.field(breakpointState);
+  let hasBreakpoint = false;
+  breakpoints.between(pos, pos, () => {
+    hasBreakpoint = true;
+  });
+  view.dispatch({
+    effects: breakpointEffect.of({ pos, on: !hasBreakpoint }),
+  });
+}
+
+const breakpointGutter = [
+  breakpointState,
+  gutter({
+    class: "cm-breakpoint-gutter",
+    markers: (v) => v.state.field(breakpointState),
+    initialSpacer: () => breakpointMarker,
+    domEventHandlers: {
+      mousedown(view, line) {
+        toggleBreakpoint(view, line.from);
+        return true;
+      },
+    },
+  }),
+  EditorView.baseTheme({
+    ".cm-breakpoint-gutter .cm-gutterElement": {
+      color: "red",
+      paddingLeft: "5px",
+      cursor: "default",
+    },
+  }),
+];
+
 export {
   Adapter,
+  breakpointGutter,
   DetectRTC,
   FileBufferReader,
   FileSelector,

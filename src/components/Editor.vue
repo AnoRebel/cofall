@@ -13,9 +13,9 @@ import {
 } from "@codemirror/lint";
 
 import * as Y from "yjs";
-// @ts-ignore
+/// @ts-ignore
 import { getYjsValue, getYjsDoc, SyncedText } from "@syncedstore/core";
-// @ts-ignore
+/// @ts-ignore
 import { yCollab } from "y-codemirror.next";
 import { useSyncedStore, useRTCProvider } from "@/utils";
 
