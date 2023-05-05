@@ -4,24 +4,14 @@ import { oneDark } from "@codemirror/theme-one-dark";
 import { Theme, useTheme } from "@/composables/theme";
 import { Loading, ToolBar, Editor } from "@/components";
 import languages from "@/utils/languages";
+import { useConfigStore } from "@/stores/config";
 
-const config = reactive({
-  disabled: false,
-  indentWithTab: true,
-  tabSize: 2,
-  autofocus: true,
-  height: "auto",
-  language: "javascript",
-  theme: useTheme().theme.value === Theme.Dark ? "default" : "oneDark",
-});
-const loading = shallowRef(false);
+const config = useConfigStore();
 const currentLang = computed(() => languages[config.language]);
 const currentTheme = computed(() => {
   return config.theme !== "default" ? config.theme : void 0;
 });
 const ensureLanguageCode = (targetLanguage: string) => {
-  config.language = targetLanguage;
-  // loading.value = true;
   // const delayPromise = () => new Promise(resolve => window.setTimeout(resolve, 260));
   // if (langCodeMap.has(targetLanguage)) {
   //   await delayPromise();
@@ -29,30 +19,13 @@ const ensureLanguageCode = (targetLanguage: string) => {
   //   const [result] = await Promise.all([languages[targetLanguage](), delayPromise()]);
   //   langCodeMap.set(targetLanguage, result.default);
   // }
-  loading.value = false;
 };
-
-// HACK: Make sure the first screen the user sees is the loading placeholder
-loading.value = true;
-onBeforeMount(() => {
-  // init default language & code
-  ensureLanguageCode(config.language);
-});
 </script>
 
 <template>
   <div class="example">
-    <ToolBar
-      :config="config"
-      :disabled="loading"
-      :themes="Object.keys({ oneDark })"
-      :languages="Object.keys(languages)"
-      @language="ensureLanguageCode"
-    />
+    <ToolBar />
     <div class="divider"></div>
-    <div class="loading-box" v-if="loading">
-      <Loading />
-    </div>
     <Editor :config="config" :theme="currentTheme" :language="currentLang" />
   </div>
 </template>

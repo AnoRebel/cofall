@@ -1,10 +1,12 @@
-import { inject, readonly, ref } from "vue";
+import { type App, inject, readonly, ref } from "vue";
 import storage from "@/composables/storage";
 
-export const Theme = {
-  Light: "light",
-  Dark: "dark",
-};
+export enum Theme {
+  Light = "light",
+  Dark = "dark",
+}
+
+export type ThemeState = ReturnType<typeof createThemeStore>;
 
 export const THEME_STORAGE_KEY = "__theme";
 export const getLocalTheme = () => {
@@ -25,9 +27,9 @@ export const getLocalTheme = () => {
 };
 
 const ThemeSymbol = Symbol("theme");
-const createThemeStore = (defaultTheme) => {
+const createThemeStore = (defaultTheme: Theme) => {
   const theme = ref(defaultTheme);
-  const set = (newTheme: string) => {
+  const set = (newTheme: Theme) => {
     if ([Theme.Light, Theme.Dark].includes(newTheme)) {
       if (newTheme !== theme.value) {
         theme.value = newTheme;
@@ -47,16 +49,16 @@ const createThemeStore = (defaultTheme) => {
   };
 };
 
-export const createTheme = (defaultTheme: string) => {
+export const createTheme = (defaultTheme: Theme) => {
   const themeStore = createThemeStore(defaultTheme);
   return {
     ...themeStore,
-    install(app: any) {
+    install(app: App) {
       app.provide(ThemeSymbol, themeStore);
     },
   };
 };
 
-export const useTheme = () => {
-  return inject(ThemeSymbol);
+export const useTheme = (): ThemeState => {
+  return inject(ThemeSymbol) as ThemeState;
 };

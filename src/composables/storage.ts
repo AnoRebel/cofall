@@ -1,9 +1,10 @@
-export const get = key => sessionStorage.getItem(key);
-export const set = (key, data) => sessionStorage.setItem(key, data);
-export const remove = key => sessionStorage.removeItem(key);
+export const get = (key: string) => localStorage.getItem(key);
+export const set = (key: string, data: any) => localStorage.setItem(key, data);
+export const remove = (key: string) => localStorage.removeItem(key);
 
-export const setJSON = (key, data) => set(key, JSON.stringify(data));
-export const getJSON = key => {
+export const setJSON = (key: string, data: any) =>
+  set(key, JSON.stringify(data));
+export const getJSON = (key: string) => {
   let result = null;
   const data = get(key);
   if (!data) {

@@ -1,25 +1,11 @@
-<script setup>
-defineProps({
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
-  config: {
-    type: Object,
-    required: true,
-  },
-  languages: {
-    type: Array,
-    required: true,
-  },
-  themes: {
-    type: Array,
-    required: true,
-  },
-});
-const emit = defineEmits(["language"]);
+<script setup lang="ts">
+  import { useConfigStore } from "@/stores/config";
+  import languages from "@/utils/languages";
+  import { Bootstrap } from "codemirror6-bootstrap-theme";
+  import { oneDark } from "@codemirror/theme-one-dark";
 
-const handleSelectLanguage = event => emit("language", event.target.value);
+const config = useConfigStore();
+const themes: Record<string, any> = { Bootstrap, oneDark };
 </script>
 
 <template>
@@ -29,9 +15,7 @@ const handleSelectLanguage = event => emit("language", event.target.value);
       <select
         name="language"
         id="language"
-        :disabled="disabled"
-        :value="config.language"
-        @change="handleSelectLanguage"
+        v-model="config.language"
       >
         <option :value="option" :key="option" v-for="option in languages">
           {{ option }}
@@ -40,7 +24,7 @@ const handleSelectLanguage = event => emit("language", event.target.value);
     </div>
     <div class="item">
       <label for="theme">theme:</label>
-      <select name="theme" id="theme" :disabled="disabled" v-model="config.theme">
+      <select name="theme" id="theme" v-model="config.theme">
         <option :value="option" :key="option" v-for="option in ['default', ...themes]">
           {{ option }}
         </option>
@@ -48,24 +32,23 @@ const handleSelectLanguage = event => emit("language", event.target.value);
     </div>
     <div class="item">
       <label for="disabled">disabled:</label>
-      <input type="checkbox" id="disabled" :disabled="disabled" v-model="config.disabled" />
+      <input type="checkbox" id="disabled" v-model="config.disabled" />
     </div>
     <div class="item">
       <label for="autofocus">autofocus:</label>
-      <input type="checkbox" id="autofocus" :disabled="disabled" v-model="config.autofocus" />
+      <input type="checkbox" id="autofocus" v-model="config.autofocus" />
     </div>
     <div class="item">
       <label for="indentWithTab">indentWithTab:</label>
       <input
         type="checkbox"
         id="indentWithTab"
-        :disabled="disabled"
         v-model="config.indentWithTab"
       />
     </div>
     <div class="item">
       <label for="tabSize">tabSize:</label>
-      <select name="tabSize" id="tabSize" :disabled="disabled" v-model.number="config.tabSize">
+      <select name="tabSize" id="tabSize" v-model.number="config.tabSize">
         <option :value="option" :key="option" v-for="option in [2, 4, 6, 8]">
           {{ option }}
         </option>
@@ -73,7 +56,7 @@ const handleSelectLanguage = event => emit("language", event.target.value);
     </div>
     <div class="item">
       <label for="height">height:</label>
-      <select name="height" id="height" :disabled="disabled" v-model="config.height">
+      <select name="height" id="height" v-model="config.height">
         <option :value="option" :key="option" v-for="option in ['auto', '200px', '40em', '60vh']">
           {{ option }}
         </option>

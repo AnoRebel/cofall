@@ -1,29 +1,26 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { reactive, shallowRef, computed } from "vue";
-import { Codemirror } from "vue-codemirror";
-import { redo, undo, indentWithTab } from "@codemirror/commands";
-import { ViewUpdate, keymap, placeholder } from "@codemirror/view";
-import { Compartment, EditorSelection, StateEffect } from "@codemirror/state";
+import Codemirror, { store } from "@/components/codemirror";
+import { redo, undo } from "@codemirror/commands";
+import { ViewUpdate, type EditorView } from "@codemirror/view";
 import {
   diagnosticCount as linterDagnosticCount,
   forceLinting,
   linter,
-  lintGutter,
 } from "@codemirror/lint";
 
 import * as Y from "yjs";
 /// @ts-ignore
-import { getYjsValue, getYjsDoc, SyncedText } from "@syncedstore/core";
+import { getYjsDoc, SyncedText } from "@syncedstore/core";
 /// @ts-ignore
 import { yCollab } from "y-codemirror.next";
-import { useSyncedStore, useRTCProvider } from "@/utils";
+import { useConfigStore } from "@/stores/config";
+import { useRTCProvider } from "@/utils";
+
+const config = useConfigStore();
 
 const props = defineProps({
-  config: {
-    type: Object,
-    required: true,
-  },
   theme: [Object, Array],
   language: Function,
 });
@@ -48,7 +45,6 @@ const randomInt = (min: number, max: number) => {
 // select a random color for this user
 const userColor = usercolors[randomInt(0, usercolors.length - 1)];
 
-const store = useSyncedStore({ data: {}, code: "text" });
 const { provider } = useRTCProvider("cofall", getYjsDoc(store));
 const undoManager = new Y.UndoManager(store.code);
 
@@ -76,7 +72,7 @@ const togglePreview = () => {
 };
 
 const cmView = shallowRef();
-const handleReady = ({ view }) => {
+const handleReady = ({ view }: { view: EditorView }) => {
   cmView.value = view;
 };
 
@@ -94,10 +90,10 @@ const handleRedo = () =>
   });
 
 const state = reactive({
-  lines: null,
-  cursor: null,
-  selected: null,
-  length: null,
+  lines: null as null | number,
+  cursor: null as null | number,
+  selected: null as null | number,
+  length: null as null | number,
 });
 
 const handleStateUpdate = (viewUpdate: ViewUpdate) => {
@@ -116,7 +112,6 @@ const handleStateUpdate = (viewUpdate: ViewUpdate) => {
   <div class="editor">
     <div class="main">
       <codemirror
-        v-model="store.code"
         :style="{
           width: preview ? '50%' : '100%',
           height: config.height,
@@ -139,7 +134,7 @@ const handleStateUpdate = (viewUpdate: ViewUpdate) => {
         class="code"
         :style="{ height: config.height, width: preview ? '50%' : '0px' }"
         >
-        {{ ytext }}
+        {{ store.code.toString() }}
         </pre
       >
     </div>
