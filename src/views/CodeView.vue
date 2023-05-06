@@ -1,32 +1,12 @@
 <script setup lang="ts">
-import { reactive, computed, shallowRef, onBeforeMount } from "vue";
-import { oneDark } from "@codemirror/theme-one-dark";
-import { Theme, useTheme } from "@/composables/theme";
 import { Loading, ToolBar, Editor } from "@/components";
-import languages from "@/utils/languages";
-import { useConfigStore } from "@/stores/config";
-
-const config = useConfigStore();
-const currentLang = computed(() => languages[config.language]);
-const currentTheme = computed(() => {
-  return config.theme !== "default" ? config.theme : void 0;
-});
-const ensureLanguageCode = (targetLanguage: string) => {
-  // const delayPromise = () => new Promise(resolve => window.setTimeout(resolve, 260));
-  // if (langCodeMap.has(targetLanguage)) {
-  //   await delayPromise();
-  // } else {
-  //   const [result] = await Promise.all([languages[targetLanguage](), delayPromise()]);
-  //   langCodeMap.set(targetLanguage, result.default);
-  // }
-};
 </script>
 
 <template>
   <div class="example">
     <ToolBar />
     <div class="divider"></div>
-    <Editor :config="config" :theme="currentTheme" :language="currentLang" />
+    <Editor />
   </div>
 </template>
 

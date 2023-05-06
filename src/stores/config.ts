@@ -1,9 +1,18 @@
 import { defineStore } from "pinia";
 import { Theme, useTheme } from "@/composables/theme";
-import type { ConfigProps } from "@/components/codemirror/props";
+
+interface State {
+  disabled: boolean;
+  indentWithTab: boolean;
+  tabSize: number;
+  autofocus: boolean;
+  height: string;
+  language: string;
+  theme: string;
+}
 
 export const useConfigStore = defineStore("config", {
-  state: (): ConfigProps => {
+  state: (): State => {
     return {
       disabled: false,
       indentWithTab: true,

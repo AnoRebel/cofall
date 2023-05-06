@@ -3,11 +3,9 @@ import { onMounted, shallowRef, computed, onBeforeUnmount } from "vue";
 import { EditorState, type Extension} from "@codemirror/state";
 import {EditorView} from "@codemirror/view";
 import {
-  // diagnosticCount as linterDagnosticCount,
-  // forceLinting,
-  // linter,
-  lintGutter,
-  lintKeymap,
+  diagnosticCount as linterDagnosticCount,
+  forceLinting,
+  linter,
 } from "@codemirror/lint";
 
 import * as Y from "yjs";

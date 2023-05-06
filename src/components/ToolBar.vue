@@ -1,11 +1,9 @@
 <script setup lang="ts">
   import { useConfigStore } from "@/stores/config";
   import languages from "@/utils/languages";
-  import { Bootstrap } from "codemirror6-bootstrap-theme";
-  import { oneDark } from "@codemirror/theme-one-dark";
+  import themes from "@/utils/themes";
 
 const config = useConfigStore();
-const themes: Record<string, any> = { Bootstrap, oneDark };
 </script>
 
 <template>

@@ -3,29 +3,30 @@
 import { reactive, shallowRef, computed } from "vue";
 import Codemirror, { store } from "@/components/codemirror";
 import { redo, undo } from "@codemirror/commands";
-import { ViewUpdate, type EditorView } from "@codemirror/view";
+import { type Extension } from "@codemirror/state";
+import { ViewUpdate, EditorView } from "@codemirror/view";
 import {
   diagnosticCount as linterDagnosticCount,
-  forceLinting,
+  // forceLinting,
+  // openLintPanel,
+  // closeLintPanel,
   linter,
 } from "@codemirror/lint";
 
 import * as Y from "yjs";
+import {esLint} from "@codemirror/lang-javascript";
+import * as eslint from "eslint-linter-browserify";
 /// @ts-ignore
 import { getYjsDoc, SyncedText } from "@syncedstore/core";
 /// @ts-ignore
 import { yCollab } from "y-codemirror.next";
 import { useConfigStore } from "@/stores/config";
+import themes from "@/utils/themes";
+import exts from "@/utils/extensions";
+import languages from "@/utils/languages";
 import { useRTCProvider } from "@/utils";
 
-const config = useConfigStore();
-
-const props = defineProps({
-  theme: [Object, Array],
-  language: Function,
-});
-
-const usercolors = [
+const userColors = [
   { color: "#30bced", light: "#30bced33" },
   { color: "#6eeb83", light: "#6eeb8333" },
   { color: "#ffbc42", light: "#ffbc4233" },
@@ -43,25 +44,44 @@ const randomInt = (min: number, max: number) => {
 };
 
 // select a random color for this user
-const userColor = usercolors[randomInt(0, usercolors.length - 1)];
+const userColor = userColors[randomInt(0, userColors.length - 1)];
+
+const config = useConfigStore();
 
 const { provider } = useRTCProvider("cofall", getYjsDoc(store));
 const undoManager = new Y.UndoManager(store.code);
 
 provider.awareness.setLocalStateField("user", {
-  name: "Username", // TODO: Added stored username
+  name: "Anonymous " + Math.floor(Math.random() * 100), // TODO: Added stored username
   color: userColor.color,
   colorLight: userColor.light,
 });
 
 const log = console.log;
-const extensions = computed(() => {
-  const result = [yCollab(store.code, provider.awareness, { undoManager })];
-  if (props.language) {
-    result.push(props.language());
+const theme = computed(() => config.theme !== 'default' ? themes[config.theme] : void 0);
+const extensions = computed<Extension[]>(() => {
+  const result = [
+    ...exts,
+    config.language === "" ? languages["javascript"]() : languages[config.language](),
+    EditorView.updateListener.of((viewUpdate) => {
+      // https://discuss.codemirror.net/t/codemirror-6-proper-way-to-listen-for-changes/2395/11
+      // onUpdate(viewUpdate)
+      // doc changed
+      if (viewUpdate.docChanged) {
+        log("OnChange", viewUpdate.state.doc.toString(), viewUpdate)
+      }
+      // focus state change
+      if (viewUpdate.focusChanged) {
+        viewUpdate.view.hasFocus ? log("onFocus", viewUpdate) : log("onBlur", viewUpdate)
+      }
+    }),
+    yCollab(store.code, provider.awareness, { undoManager })
+  ];
+  if(config.language === "javascript") {
+    result.push(linter(esLint(new eslint.Linter(), { env: { browser: true, node: true }})))
   }
-  if (props.theme) {
-    result.push(props.theme);
+  if (theme.value) {
+    result.push(theme.value);
   }
   return result;
 });
@@ -95,6 +115,7 @@ const state = reactive({
   selected: null as null | number,
   length: null as null | number,
 });
+const diagnosticCount = computed(() => linterDagnosticCount(cmView.value.state));
 
 const handleStateUpdate = (viewUpdate: ViewUpdate) => {
   // selected
@@ -149,6 +170,7 @@ const handleStateUpdate = (viewUpdate: ViewUpdate) => {
         <button class="item" @click="handleRedo">Redo</button>
       </div>
       <div class="infos">
+        <span class="item">Diagnostics: {{ diagnosticCount }}</span>
         <span class="item">Spaces: {{ config.tabSize }}</span>
         <span class="item">Length: {{ state.length }}</span>
         <span class="item">Lines: {{ state.lines }}</span>
