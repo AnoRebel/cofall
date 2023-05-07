@@ -15,7 +15,7 @@ const config = useConfigStore();
         id="language"
         v-model="config.language"
       >
-        <option :value="option" :key="option" v-for="option in languages">
+        <option :value="option" :key="option" v-for="option in Object.keys(languages)">
           {{ option }}
         </option>
       </select>
@@ -23,7 +23,7 @@ const config = useConfigStore();
     <div class="item">
       <label for="theme">theme:</label>
       <select name="theme" id="theme" v-model="config.theme">
-        <option :value="option" :key="option" v-for="option in ['default', ...themes]">
+        <option :value="option" :key="option" v-for="option in ['default', ...Object.keys(themes)]">
           {{ option }}
         </option>
       </select>

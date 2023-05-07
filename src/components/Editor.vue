@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { reactive, shallowRef, computed } from "vue";
+import { onBeforeMount, reactive, shallowRef, computed, watch } from "vue";
 import Codemirror, { store } from "@/components/codemirror";
 import { redo, undo } from "@codemirror/commands";
 import { type Extension } from "@codemirror/state";
@@ -48,6 +48,9 @@ const userColor = userColors[randomInt(0, userColors.length - 1)];
 
 const config = useConfigStore();
 
+// init default language & code
+onBeforeMount(() => ensureLanguageCode(config.language));
+
 const { provider } = useRTCProvider("cofall", getYjsDoc(store));
 const undoManager = new Y.UndoManager(store.code);
 
@@ -57,12 +60,27 @@ provider.awareness.setLocalStateField("user", {
   colorLight: userColor.light,
 });
 
+const langCodeMap = reactive(new Map<string, { language: () => any }>());
+const ensureLanguageCode = async (targetLanguage: string) => {
+  config.language = targetLanguage
+  const delayPromise = () => new Promise((resolve) => window.setTimeout(resolve, 50))
+  if (langCodeMap.has(targetLanguage)) {
+    await delayPromise()
+  } else {
+    const [result] = await Promise.all([languages[targetLanguage](), delayPromise()])
+    langCodeMap.set(targetLanguage, result.default)
+  }
+};
+watch(() => config.language, () => ensureLanguageCode(config.language));
+const currentLangCode = computed(() => langCodeMap.get(config.language)!);
+
 const log = console.log;
 const theme = computed(() => config.theme !== 'default' ? themes[config.theme] : void 0);
 const extensions = computed<Extension[]>(() => {
   const result = [
     ...exts,
-    config.language === "" ? languages["javascript"]() : languages[config.language](),
+    // config.language === "" ? languages["javascript"]() : languages[config.language](),
+    // currentLangCode.value.language(),
     EditorView.updateListener.of((viewUpdate) => {
       // https://discuss.codemirror.net/t/codemirror-6-proper-way-to-listen-for-changes/2395/11
       // onUpdate(viewUpdate)
@@ -77,7 +95,10 @@ const extensions = computed<Extension[]>(() => {
     }),
     yCollab(store.code, provider.awareness, { undoManager })
   ];
-  if(config.language === "javascript") {
+  if (currentLangCode.value) {
+    result.push(currentLangCode.value.language())
+  }
+  if (["css", "javascript", "html", "json", "jsx", "markdown", "scss", "tsx", "typescript"].includes(config.language)) {
     result.push(linter(esLint(new eslint.Linter(), { env: { browser: true, node: true }})))
   }
   if (theme.value) {
@@ -115,7 +136,13 @@ const state = reactive({
   selected: null as null | number,
   length: null as null | number,
 });
-const diagnosticCount = computed(() => linterDagnosticCount(cmView.value.state));
+const diagnosticCount = computed(() => {
+  if(cmView.value) {
+    return linterDagnosticCount(cmView.value?.state);
+  } else {
+    return 0;
+  }
+});
 
 const handleStateUpdate = (viewUpdate: ViewUpdate) => {
   // selected
@@ -125,7 +152,6 @@ const handleStateUpdate = (viewUpdate: ViewUpdate) => {
   // length
   state.length = viewUpdate.state.doc.length;
   state.lines = viewUpdate.state.doc.lines;
-  // log('viewUpdate', viewUpdate)
 };
 </script>
 
