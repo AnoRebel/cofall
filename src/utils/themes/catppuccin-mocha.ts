@@ -37,6 +37,7 @@ export const catppuccinMochaTheme = EditorView.theme(
 
     ".cm-content": {
       caretColor: cursor,
+      height: "100%",
     },
 
     ".cm-cursor, .cm-dropCursor": { borderLeftColor: cursor },
@@ -68,7 +69,7 @@ export const catppuccinMochaTheme = EditorView.theme(
     },
 
     "&.cm-editor.cm-focused": {
-      outline: "5px solid transparent",
+      outline: "2px solid transparent",
     },
 
     "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {

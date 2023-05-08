@@ -37,6 +37,7 @@ export const tokyoNightTheme = EditorView.theme(
 
     ".cm-content": {
       caretColor: cursor,
+      height: "100%",
     },
 
     ".cm-cursor, .cm-dropCursor": { borderLeftColor: cursor },
@@ -68,7 +69,7 @@ export const tokyoNightTheme = EditorView.theme(
     },
 
     "&.cm-editor.cm-focused": {
-      outline: "5px solid #545c7e33",
+      outline: "2px solid #545c7e33",
     },
 
     "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {

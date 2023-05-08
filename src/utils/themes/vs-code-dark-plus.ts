@@ -39,6 +39,7 @@ export const vsCodeDarkPlusTheme = EditorView.theme(
 
     ".cm-content": {
       caretColor: cursor,
+      height: "100%",
     },
 
     ".cm-cursor, .cm-dropCursor": { borderLeftColor: cursor },
@@ -70,7 +71,7 @@ export const vsCodeDarkPlusTheme = EditorView.theme(
     },
 
     "&.cm-editor.cm-focused": {
-      outline: "5px solid #808080",
+      outline: "2px solid #808080",
     },
 
     "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {

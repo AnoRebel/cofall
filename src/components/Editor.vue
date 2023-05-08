@@ -1,10 +1,10 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { onBeforeMount, reactive, shallowRef, computed, watch } from "vue";
-import Codemirror, { store } from "@/components/codemirror";
 import { redo, undo } from "@codemirror/commands";
 import { type Extension } from "@codemirror/state";
 import { ViewUpdate, EditorView } from "@codemirror/view";
+import Codemirror, { store } from "@/components/codemirror";
 import {
   diagnosticCount as linterDagnosticCount,
   // forceLinting,
@@ -14,10 +14,11 @@ import {
 } from "@codemirror/lint";
 
 import * as Y from "yjs";
-import {esLint} from "@codemirror/lang-javascript";
+import { esLint } from "@codemirror/lang-javascript";
+// @ts-ignore
 import * as eslint from "eslint-linter-browserify";
 /// @ts-ignore
-import { getYjsDoc, SyncedText } from "@syncedstore/core";
+import { getYjsDoc } from "@syncedstore/core";
 /// @ts-ignore
 import { yCollab } from "y-codemirror.next";
 import { useConfigStore } from "@/stores/config";
@@ -107,11 +108,6 @@ const extensions = computed<Extension[]>(() => {
   return result;
 });
 
-const preview = shallowRef(false);
-const togglePreview = () => {
-  preview.value = !preview.value;
-};
-
 const cmView = shallowRef();
 const handleReady = ({ view }: { view: EditorView }) => {
   cmView.value = view;
@@ -156,11 +152,11 @@ const handleStateUpdate = (viewUpdate: ViewUpdate) => {
 </script>
 
 <template>
-  <div class="editor">
-    <div class="main">
+  <div class="h-full w-full">
+    <div class="flex w-full h-full">
       <codemirror
         :style="{
-          width: preview ? '50%' : '100%',
+          width: '100%',
           height: config.height,
           backgroundColor: '#fff',
           color: '#333',
@@ -176,101 +172,26 @@ const handleStateUpdate = (viewUpdate: ViewUpdate) => {
         @focus="log('focus', $event)"
         @blur="log('blur', $event)"
       />
-      <pre
-        v-if="preview"
-        class="code"
-        :style="{ height: config.height, width: preview ? '50%' : '0px' }"
-        >
-        {{ store.code.toString() }}
-        </pre
-      >
     </div>
-    <div class="divider"></div>
-    <div class="footer">
-      <div class="buttons">
-        <button class="item" @click="togglePreview">
-          <span>Preview</span>
-          <i class="iconfont" :class="preview ? 'icon-eye' : 'icon-eye-close'"></i>
-        </button>
-        <button class="item" @click="handleUndo">Undo</button>
-        <button class="item" @click="handleRedo">Redo</button>
+    <div class="w-full h-px bg-slate-500"></div>
+    <div class="h-12 w-full flex justify-between items-center text-sm bg-slate-800 py-0 px-2 rounded-b">
+      <div class="inline-flex space-x-2 items-center justify-center">
+        <button class="inline-flex justify-center items-center text-slate-50 bg-transparent cursor-pointer border p-2
+          border-slate-600 border-dashed hover:text-slate-300 hover:border-slate-700" @click="handleUndo">Undo</button>
+        <button class="inline-flex justify-center items-center text-slate-50 bg-transparent cursor-pointer border p-2
+          border-slate-600 border-dashed hover:text-slate-300 hover:border-slate-700" @click="handleRedo">Redo</button>
       </div>
-      <div class="infos">
-        <span class="item">Diagnostics: {{ diagnosticCount }}</span>
-        <span class="item">Spaces: {{ config.tabSize }}</span>
-        <span class="item">Length: {{ state.length }}</span>
-        <span class="item">Lines: {{ state.lines }}</span>
-        <span class="item">Cursor: {{ state.cursor }}</span>
-        <span class="item">Selected: {{ state.selected }}</span>
+      <div class="inline-flex space-x-2 items-center justify-center text-slate-50">
+        <span class="inline-block ml-12" style="font-feature-settings: 'tnum'">Diagnostics: {{ diagnosticCount }}</span>
+        <span class="inline-block ml-12" style="font-feature-settings: 'tnum'">Spaces: {{ config.tabSize }}</span>
+        <span class="inline-block ml-12" style="font-feature-settings: 'tnum'">Length: {{ state.length }}</span>
+        <span class="inline-block ml-12" style="font-feature-settings: 'tnum'">Lines: {{ state.lines }}</span>
+        <span class="inline-block ml-12" style="font-feature-settings: 'tnum'">Cursor: {{ state.cursor }}</span>
+        <span class="inline-block ml-12" style="font-feature-settings: 'tnum'">Selected: {{ state.selected }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-@use "sass:math";
-// gaps
-$gap: 1rem; // ~14px
-$sm-gap: $gap * 0.618; // ~8.6px
-$xs-gap: math.div($sm-gap, 2); // ~4.4px
-
-.editor {
-  .divider {
-    height: 1px;
-    background-color: var(--theme-border);
-  }
-
-  .main {
-    display: flex;
-    width: 100%;
-
-    .code {
-      width: 30%;
-      height: 100px;
-      margin: 0;
-      padding: 0.4em;
-      overflow: scroll;
-      border-left: 1px solid var(--theme-border);
-      font-family: monospace;
-    }
-  }
-
-  .footer {
-    height: 3rem;
-    padding: 0 1em;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 90%;
-
-    .buttons {
-      .item {
-        margin-right: 1em;
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        background-color: transparent;
-        border: 1px dashed var(--theme-border);
-        font-size: 12px;
-        color: var(--text-secondary);
-        cursor: pointer;
-        .iconfont {
-          margin-left: $xs-gap;
-        }
-        &:hover {
-          color: var(--text-color);
-          border-color: var(--text-color);
-        }
-      }
-    }
-
-    .infos {
-      .item {
-        margin-left: 2em;
-        display: inline-block;
-        font-feature-settings: "tnum";
-      }
-    }
-  }
-}
 </style>

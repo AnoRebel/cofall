@@ -6,7 +6,7 @@ import { tags } from "@lezer/highlight";
 const foreground = "#A0A8CD",
   background = "#11121D",
   darkBackground = "#06080A",
-  highlightBackground = "#98C379",
+  highlightBackground = "#515c7e44", // "#1A1B2A", // "#98C379",
   cursor = "#A0A8CD",
   selection = "#212234",
   tooltipBackground = "#1A1B2A",
@@ -37,6 +37,7 @@ export const tokyoDarkTheme = EditorView.theme(
 
     ".cm-content": {
       caretColor: cursor,
+      height: "100%",
     },
 
     ".cm-cursor, .cm-dropCursor": { borderLeftColor: cursor },
@@ -68,7 +69,7 @@ export const tokyoDarkTheme = EditorView.theme(
     },
 
     "&.cm-editor.cm-focused": {
-      outline: "5px solid #11121D",
+      outline: "2px solid #11121D",
     },
 
     "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {
