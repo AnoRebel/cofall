@@ -9,11 +9,11 @@ import {
 } from "@heroicons/vue/24/solid";
 import { Icon } from "@iconify/vue";
 
-import { useSocket, useRTC } from "@/utils/socket";
+import { useSocket, useRTC } from "@/utils";
 
 onMounted(() => {
-  const { socket } = useSocket();
-  const { rtc } = useRTC();
+  const socket = useSocket();
+  const rtc = useRTC();
   console.log(socket, "|---|", rtc);
 });
 </script>

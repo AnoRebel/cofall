@@ -3,19 +3,15 @@ import { Loading, ToolBar, Editor } from "@/components";
 </script>
 
 <template>
-  <div class="example">
+  <div class="mirror">
     <ToolBar />
-    <div class="divider"></div>
+    <div class="h-px bg-slate-500"></div>
     <Editor />
   </div>
 </template>
 
 <style lang="scss" scoped>
-.example {
-  .divider {
-    height: 1px;
-    background-color: var(--theme-border);
-  }
+.mirror {
   .loading-box {
     width: 100%;
     min-height: 20rem;
