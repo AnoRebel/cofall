@@ -52,10 +52,78 @@ const chatInput = ref('')
 const showChat = ref(true)
 const showUsers = ref(true)
 const showFiles = ref(false)
+const showFilesDashboard = ref(false)
 const isSending = ref(false)
+const isLoading = ref(true)
 
 // File manager
 const { openFilePicker, importedFiles } = useFileManager()
+
+// Handle message reactions
+const handleReaction = (messageId: string, emoji: string) => {
+  const message = messages.value.find(m => m.id === messageId)
+  if (!message) return
+
+  if (!message.reactions) message.reactions = []
+
+  const existing = message.reactions.find(r => r.emoji === emoji)
+  if (existing) {
+    if (existing.users.includes(user.value?.username || '')) {
+      existing.users = existing.users.filter(u => u !== user.value?.username)
+      existing.count--
+      if (existing.count === 0) {
+        message.reactions = message.reactions.filter(r => r.emoji !== emoji)
+      }
+    } else {
+      existing.users.push(user.value?.username || '')
+      existing.count++
+    }
+  } else {
+    message.reactions.push({
+      emoji,
+      users: [user.value?.username || ''],
+      count: 1
+    })
+  }
+}
+
+// Handle view-once message
+const handleViewMessage = (messageId: string) => {
+  const message = messages.value.find(m => m.id === messageId)
+  if (message && message.viewOnce) {
+    if (!message.viewedBy) message.viewedBy = []
+    message.viewedBy.push(user.value?.username || '')
+  }
+}
+
+// Handle delete message
+const handleDeleteMessage = (messageId: string) => {
+  const message = messages.value.find(m => m.id === messageId)
+  if (message) {
+    message.isDeleted = true
+  }
+}
+
+// Handle send message with options
+const handleSendMessageWithOptions = (data: { content: string; selfDestruct?: number; viewOnce?: boolean }) => {
+  const message = {
+    id: crypto.randomUUID(),
+    roomId: roomName.value,
+    userId: user.value?.id || '',
+    username: user.value?.username || 'Anonymous',
+    content: data.content,
+    type: 'text' as const,
+    timestamp: new Date(),
+    reactions: [],
+    selfDestruct: data.selfDestruct,
+    selfDestructAt: data.selfDestruct ? new Date(Date.now() + data.selfDestruct * 1000) : undefined,
+    viewOnce: data.viewOnce,
+  }
+
+  sendMessage(roomName.value, user.value?.username || 'Anonymous', data.content)
+  messages.value.push(message)
+  scrollToBottom()
+}
 
 // Handle file selection from browser
 const handleFileSelect = (file: any) => {
@@ -121,6 +189,7 @@ onMounted(async () => {
 
   setTimeout(() => {
     joinRoom(roomName.value, user.value?.username || 'Anonymous')
+    isLoading.value = false
   }, 500)
 
   // Set up socket listeners
@@ -376,54 +445,56 @@ const formatTime = (date: Date) => {
 
         <!-- Chat panel -->
         <div v-if="showChat" class="flex-1 flex flex-col min-h-0">
-          <div class="px-3 py-2 text-sm font-medium text-muted-foreground border-b border-border">
-            Chat
+          <div class="px-3 py-2 text-sm font-medium text-muted-foreground border-b border-border flex items-center justify-between">
+            <span>Chat</span>
+            <UButton variant="ghost" size="xs" @click="showFilesDashboard = true">
+              <UIcon name="i-heroicons-arrow-up-tray" class="w-3 h-3" />
+            </UButton>
           </div>
 
           <!-- Messages -->
-          <div ref="chatContainer" class="flex-1 overflow-y-auto p-3 space-y-3">
-            <div
+          <div ref="chatContainer" class="flex-1 overflow-y-auto p-3 space-y-3" v-auto-animate>
+            <ChatMessage
               v-for="message in messages"
               :key="message.id"
-              class="flex flex-col"
-              :class="message.user === user?.username ? 'items-end' : 'items-start'"
-            >
-              <div class="flex items-center gap-1.5 mb-1">
-                <span class="text-xs font-medium">{{ message.user }}</span>
-                <span class="text-xs text-muted-foreground">{{ formatTime(message.timestamp) }}</span>
-              </div>
-              <div
-                class="max-w-[80%] rounded-lg px-3 py-2 text-sm"
-                :class="message.user === user?.username ? 'bg-primary text-primary-foreground' : 'bg-muted'"
-              >
-                {{ message.content }}
-              </div>
-            </div>
+              :message="message"
+              :is-own="message.username === user?.username"
+              :on-react="handleReaction"
+              :on-view="handleViewMessage"
+              :on-delete="handleDeleteMessage"
+              @react="handleReaction"
+              @view="handleViewMessage"
+              @reply="() => {}"
+            />
 
             <!-- Typing indicator -->
-            <div v-if="typingUsers.length > 0" class="text-xs text-muted-foreground italic">
+            <div v-if="typingUsers.length > 0" class="text-xs text-muted-foreground italic animate-pulse">
               {{ typingUsers.join(', ') }} {{ typingUsers.length === 1 ? 'is' : 'are' }} typing...
             </div>
           </div>
 
-          <!-- Message input -->
-          <div class="p-3 border-t border-border">
-            <form @submit.prevent="handleSendMessage" class="flex gap-2">
-              <UInput
-                v-model="chatInput"
-                placeholder="Type a message..."
-                class="flex-1"
-                @input="handleTyping"
-                @keydown.enter.exact="handleSendMessage"
-              />
-              <UButton type="submit" size="sm" :disabled="!chatInput.trim()">
-                <UIcon name="i-heroicons-paper-airplane" class="w-4 h-4" />
-              </UButton>
-            </form>
-          </div>
+          <!-- Message input with options -->
+          <ChatInput
+            :disabled="!connected"
+            @send="handleSendMessageWithOptions"
+            @typing="handleTyping"
+            @attach-file="showFilesDashboard = true"
+          />
         </div>
       </div>
     </div>
+
+    <!-- Page loader -->
+    <PageLoader :show="isLoading" text="Connecting to room..." />
+
+    <!-- File share dashboard -->
+    <FileShareDashboard
+      :open="showFilesDashboard"
+      @close="showFilesDashboard = false"
+      @download="(file) => {}"
+      @delete="(id) => {}"
+      @share="(file) => {}"
+    />
   </div>
 </template>
 

@@ -47,6 +47,12 @@ export interface CursorPosition {
 }
 
 // Chat types
+export interface MessageReaction {
+  emoji: string
+  users: string[]
+  count: number
+}
+
 export interface Message {
   id: string
   roomId: string
@@ -56,9 +62,18 @@ export interface Message {
   type: 'text' | 'code' | 'file' | 'image' | 'system'
   fileUrl?: string
   fileName?: string
+  fileSize?: number
   timestamp: Date
   isPrivate?: boolean
   recipientId?: string
+  // New features
+  reactions?: MessageReaction[]
+  selfDestruct?: number // seconds until deletion
+  selfDestructAt?: Date
+  viewOnce?: boolean
+  viewedBy?: string[]
+  isDeleted?: boolean
+  replyTo?: string // message id
 }
 
 export interface ChatState {
