@@ -5,23 +5,10 @@ const colorMode = useColorMode()
 const { loggedIn, user, clear } = useUserSession()
 const router = useRouter()
 
-const themeToggle = ref<HTMLElement | null>(null)
-
 // Animated theme toggle
 const toggleTheme = () => {
   colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
 }
-
-// Apply motion to theme toggle
-onMounted(() => {
-  if (themeToggle.value) {
-    useMotion(themeToggle.value, {
-      initial: { scale: 1 },
-      hover: { scale: 1.1 },
-      tap: { scale: 0.95, rotate: 180 },
-    })
-  }
-})
 
 const handleLogout = async () => {
   await clear()
@@ -34,6 +21,9 @@ const isDark = computed(() => colorMode.value === 'dark')
 const navItems = computed(() => [
   { label: 'Home', to: '/', icon: 'i-heroicons-home' },
   { label: 'Rooms', to: '/rooms', icon: 'i-heroicons-squares-2x2' },
+  { label: 'Projects', to: '/projects', icon: 'i-heroicons-folder' },
+  { label: 'Tasks', to: '/tasks', icon: 'i-heroicons-check-circle' },
+  { label: 'Issues', to: '/issues', icon: 'i-heroicons-exclamation-circle' },
 ])
 </script>
 
@@ -78,7 +68,6 @@ const navItems = computed(() => [
         <div class="flex items-center gap-3">
           <!-- Theme Toggle with animation -->
           <button
-            ref="themeToggle"
             @click="toggleTheme"
             class="relative flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-muted/50 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"

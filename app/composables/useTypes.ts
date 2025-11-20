@@ -2,6 +2,10 @@
 export type {
   User,
   AuthUser,
+  Project,
+  Task,
+  Issue,
+  AuditLog,
   Room,
   RoomState,
   CursorPosition,

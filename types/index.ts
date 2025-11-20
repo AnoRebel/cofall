@@ -15,6 +15,65 @@ export interface AuthUser {
   avatar?: string
 }
 
+// Project Management types
+export interface Project {
+  id: number
+  name: string
+  creator: string
+  description?: string
+  status?: 'active' | 'archived' | 'completed'
+  createdAt: string
+  updatedAt: string
+  owners?: User[]
+  tasks?: Task[]
+  issues?: Issue[]
+}
+
+export interface Task {
+  id: number
+  name: string
+  description?: string
+  status?: 'todo' | 'in_progress' | 'review' | 'done'
+  priority?: 'low' | 'medium' | 'high' | 'urgent'
+  assignedTo?: string[]
+  dueDate?: string
+  createdAt: string
+  updatedAt: string
+  projects?: Project[]
+  issues?: Issue[]
+}
+
+export interface Issue {
+  id: number
+  userId?: number | null
+  user: string
+  title: string
+  description: string
+  parent: 'project' | 'task'
+  status?: 'open' | 'in_progress' | 'resolved' | 'closed'
+  priority?: 'low' | 'medium' | 'high' | 'critical'
+  createdAt: string
+  updatedAt: string
+  projects?: Project[]
+  tasks?: Task[]
+}
+
+export interface AuditLog {
+  id: number
+  entityType: string
+  entityId: string
+  action: 'CREATE' | 'UPDATE' | 'DELETE'
+  userId?: number | null
+  userName?: string | null
+  oldValues?: any
+  newValues?: any
+  changedFields?: string[]
+  ipAddress?: string | null
+  userAgent?: string | null
+  metadata?: any
+  createdAt: string
+}
+
 // Room types
 export interface Room {
   id: string

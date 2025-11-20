@@ -68,6 +68,17 @@ export default defineNuxtConfig({
     css: {
       transformer: 'lightningcss',
     },
+    build: {
+      rollupOptions: {
+        external: (id) => {
+          // Make jszip and file-saver optional (fail gracefully if not installed)
+          if (id === 'jszip' || id === 'file-saver') {
+            return false  // Try to bundle them, but don't fail if missing
+          }
+          return false
+        },
+      },
+    },
   },
 
   // Nitro server configuration

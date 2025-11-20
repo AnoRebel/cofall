@@ -1,4 +1,14 @@
-import { saveAs } from 'file-saver'
+// Native file download helper (replaces file-saver)
+const saveAs = (blob: Blob, filename: string) => {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
 
 // Allowed file extensions for import
 const ALLOWED_EXTENSIONS = [
@@ -204,17 +214,13 @@ export const useFileManager = () => {
   }
 
   // Export multiple files as zip
+  // TODO: Re-enable when jszip is installed (bun add jszip)
   const exportFilesAsZip = async (files: { name: string; content: string }[]) => {
-    // Dynamic import JSZip only when needed
-    const JSZip = (await import('jszip')).default
-    const zip = new JSZip()
-
+    console.warn('Zip export is currently disabled. Exporting files individually...')
+    // Fallback: export files individually
     files.forEach(file => {
-      zip.file(file.name, file.content)
+      exportFile(file.content, file.name)
     })
-
-    const blob = await zip.generateAsync({ type: 'blob' })
-    saveAs(blob, 'cofall-export.zip')
   }
 
   // Clear imported files
