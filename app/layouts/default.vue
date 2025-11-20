@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useMotion } from 'motion-v'
+// Removed motion-v import
 
 const colorMode = useColorMode()
 const { loggedIn, user, clear } = useUserSession()

@@ -1,0 +1,22 @@
+// Re-export types for auto-import
+export type {
+  User,
+  AuthUser,
+  Room,
+  RoomState,
+  CursorPosition,
+  Message,
+  MessageReaction,
+  ChatState,
+  MediaState,
+  PeerConnection,
+  SharedFile,
+  FileTransfer,
+  SocketEvents,
+  EditorConfig,
+  LanguageOption,
+  ThemeOption,
+  AppNotification,
+  ApiResponse,
+  PaginatedResponse,
+} from '~/types'

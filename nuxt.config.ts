@@ -37,7 +37,6 @@ export default defineNuxtConfig({
     'nuxt-auth-utils',
     'nuxt-authorization',
     '@formkit/auto-animate/nuxt',
-    '@peterbud/nuxt-query',
   ],
 
   // Color mode configuration

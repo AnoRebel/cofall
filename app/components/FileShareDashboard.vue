@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useMotion } from 'motion-v'
-import type { SharedFile, FileTransfer } from '~/types'
+// Removed motion-v import
+import type { Message, MessageReaction, SharedFile, FileTransfer } from '#imports'
 
 const props = defineProps<{
   open: boolean

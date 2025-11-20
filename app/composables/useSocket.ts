@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client'
-import type { Message, MediaState } from '~/types'
+import type { Message, MediaState, SharedFile, FileTransfer } from '#imports'
 
 export const useSocket = () => {
   const config = useRuntimeConfig()

@@ -1,5 +1,5 @@
 import Peer, { MediaConnection, DataConnection } from 'peerjs'
-import type { MediaState, SharedFile } from '~/types'
+import type { Message, MediaState, SharedFile, FileTransfer } from '#imports'
 
 export const useWebRTC = () => {
   const peer = ref<Peer | null>(null)

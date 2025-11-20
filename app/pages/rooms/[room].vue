@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { saveAs } from 'file-saver'
-import type { Message } from '~/types'
+import type { Message, MessageReaction, SharedFile, FileTransfer } from '#imports'
 
 definePageMeta({
   layout: 'default',

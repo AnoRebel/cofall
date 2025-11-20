@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useMotion } from 'motion-v'
-
 const props = defineProps<{
   delay?: number
   duration?: number
@@ -9,31 +7,42 @@ const props = defineProps<{
 
 const elementRef = ref<HTMLElement | null>(null)
 const hasAnimated = ref(false)
+const isVisible = ref(false)
 
 onMounted(() => {
-  if (elementRef.value && (!props.once || !hasAnimated.value)) {
-    useMotion(elementRef.value, {
-      initial: {
-        opacity: 0,
-        y: 20,
-      },
-      visibleOnce: {
-        opacity: 1,
-        y: 0,
-        transition: {
-          delay: props.delay || 0,
-          duration: props.duration || 500,
-          ease: 'easeOut',
-        },
-      },
-    })
-    hasAnimated.value = true
-  }
+  if (!elementRef.value) return
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && (!props.once || !hasAnimated.value)) {
+          isVisible.value = true
+          hasAnimated.value = true
+          if (props.once) {
+            observer.disconnect()
+          }
+        }
+      })
+    },
+    { threshold: 0.1 }
+  )
+
+  observer.observe(elementRef.value)
+
+  onUnmounted(() => observer.disconnect())
 })
 </script>
 
 <template>
-  <div ref="elementRef">
+  <div
+    ref="elementRef"
+    class="transition-all duration-500"
+    :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
+    :style="{
+      transitionDelay: `${delay || 0}ms`,
+      transitionDuration: `${duration || 500}ms`
+    }"
+  >
     <slot />
   </div>
 </template>
