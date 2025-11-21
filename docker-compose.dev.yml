@@ -1,0 +1,62 @@
+version: '3.8'
+
+# Development configuration - runs without nginx
+# Usage: docker compose -f docker-compose.dev.yml up
+
+services:
+  # Nuxt Frontend Application (development)
+  cofall-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder  # Stop at builder stage for development
+    container_name: cofall-app-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NUXT_HOST=0.0.0.0
+      - NUXT_PORT=3000
+      - NUXT_PUBLIC_SIGNALING_SERVER=http://localhost:3001
+      - NUXT_PUBLIC_APP_URL=http://localhost:3000
+      - NUXT_SESSION_PASSWORD=dev-secret-password-at-least-32-chars-long
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.nuxt
+      - /app/.output
+    networks:
+      - cofall-dev-network
+    depends_on:
+      - signaling
+    command: ["bun", "run", "dev"]
+
+  # Signaling Server (development)
+  signaling:
+    build:
+      context: ./signaling-server
+      dockerfile: Dockerfile
+    container_name: cofall-signaling-dev
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - HOST=0.0.0.0
+      - CORS_ORIGIN=http://localhost:3000
+      - DATABASE_URL=sqlite:./data/cofall.db
+    volumes:
+      - ./signaling-server:/app
+      - /app/node_modules
+      - signaling-dev-data:/app/data
+    networks:
+      - cofall-dev-network
+
+networks:
+  cofall-dev-network:
+    driver: bridge
+
+volumes:
+  signaling-dev-data:
