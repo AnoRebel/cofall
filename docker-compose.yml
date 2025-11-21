@@ -1,0 +1,105 @@
+version: '3.8'
+
+services:
+  # Nuxt Frontend Application
+  cofall-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NUXT_PUBLIC_SIGNALING_SERVER=${NUXT_PUBLIC_SIGNALING_SERVER:-http://signaling:3001}
+        - NUXT_PUBLIC_APP_URL=${NUXT_PUBLIC_APP_URL:-http://localhost:3000}
+        - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD:-super-secret-password-at-least-32-chars-long}
+    container_name: cofall-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NUXT_HOST=0.0.0.0
+      - NUXT_PORT=3000
+      - NUXT_PUBLIC_SIGNALING_SERVER=${NUXT_PUBLIC_SIGNALING_SERVER:-http://signaling:3001}
+      - NUXT_PUBLIC_APP_URL=${NUXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD:-super-secret-password-at-least-32-chars-long}
+      - NUXT_OAUTH_GITHUB_CLIENT_ID=${NUXT_OAUTH_GITHUB_CLIENT_ID:-}
+      - NUXT_OAUTH_GITHUB_CLIENT_SECRET=${NUXT_OAUTH_GITHUB_CLIENT_SECRET:-}
+    networks:
+      - cofall-network
+    depends_on:
+      - signaling
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Signaling Server (Fastify + Socket.IO + PeerJS)
+  signaling:
+    build:
+      context: ./signaling-server
+      dockerfile: Dockerfile
+    container_name: cofall-signaling
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOST=0.0.0.0
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:./data/cofall.db}
+    volumes:
+      - signaling-data:/app/data
+    networks:
+      - cofall-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # Nginx Reverse Proxy (optional, for production)
+  nginx:
+    image: nginx:alpine
+    container_name: cofall-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/logs:/var/log/nginx
+    networks:
+      - cofall-network
+    depends_on:
+      - cofall-app
+      - signaling
+    profiles:
+      - production
+
+  # Redis for session storage (optional, for scaling)
+  redis:
+    image: redis:7-alpine
+    container_name: cofall-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - cofall-network
+    command: redis-server --appendonly yes
+    profiles:
+      - production
+
+networks:
+  cofall-network:
+    driver: bridge
+
+volumes:
+  signaling-data:
+  redis-data:
