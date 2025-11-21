@@ -1,0 +1,50 @@
+version: 2
+updates:
+  # Maintain dependencies for npm/bun
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    groups:
+      nuxt:
+        patterns:
+          - "nuxt*"
+          - "@nuxt/*"
+          - "@nuxtjs/*"
+      vue:
+        patterns:
+          - "vue*"
+          - "@vue/*"
+          - "@vueuse/*"
+      codemirror:
+        patterns:
+          - "@codemirror/*"
+      tanstack:
+        patterns:
+          - "@tanstack/*"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+
+  # Maintain dependencies for Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+
+  - package-ecosystem: "docker"
+    directory: "/signaling-server"
+    schedule:
+      interval: "weekly"
+      day: "monday"
