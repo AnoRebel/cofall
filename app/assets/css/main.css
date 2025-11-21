@@ -1,0 +1,282 @@
+@import "tailwindcss";
+
+/* TailwindCSS v4 CSS-first configuration */
+@theme {
+  /* Color palette - Developer/Programming aesthetic */
+  --color-background: oklch(13.5% 0.02 240);
+  --color-foreground: oklch(98% 0.01 240);
+  --color-muted: oklch(25% 0.02 240);
+  --color-muted-foreground: oklch(70% 0.01 240);
+  --color-border: oklch(30% 0.02 240);
+  --color-input: oklch(20% 0.02 240);
+  --color-ring: oklch(60% 0.15 240);
+
+  /* Primary - Syntax highlight inspired */
+  --color-primary: oklch(70% 0.18 200);
+  --color-primary-foreground: oklch(15% 0.02 200);
+
+  /* Secondary - Code comment style */
+  --color-secondary: oklch(50% 0.08 120);
+  --color-secondary-foreground: oklch(98% 0.01 120);
+
+  /* Accent - Terminal green */
+  --color-accent: oklch(75% 0.2 145);
+  --color-accent-foreground: oklch(15% 0.02 145);
+
+  /* Destructive - Error red */
+  --color-destructive: oklch(60% 0.25 25);
+  --color-destructive-foreground: oklch(98% 0.01 25);
+
+  /* Warning - Lint warning */
+  --color-warning: oklch(80% 0.18 85);
+  --color-warning-foreground: oklch(15% 0.02 85);
+
+  /* Success - Test pass green */
+  --color-success: oklch(70% 0.2 145);
+  --color-success-foreground: oklch(15% 0.02 145);
+
+  /* Info - Debug blue */
+  --color-info: oklch(65% 0.18 240);
+  --color-info-foreground: oklch(98% 0.01 240);
+
+  /* Code editor colors */
+  --color-editor-bg: oklch(10% 0.02 240);
+  --color-editor-gutter: oklch(15% 0.02 240);
+  --color-editor-line: oklch(18% 0.02 240);
+  --color-editor-selection: oklch(35% 0.08 200);
+
+  /* Syntax highlighting */
+  --color-syntax-keyword: oklch(70% 0.2 310);
+  --color-syntax-string: oklch(75% 0.15 145);
+  --color-syntax-number: oklch(80% 0.18 85);
+  --color-syntax-function: oklch(75% 0.18 200);
+  --color-syntax-comment: oklch(55% 0.05 240);
+  --color-syntax-variable: oklch(80% 0.12 60);
+
+  /* Card and popover */
+  --color-card: oklch(15% 0.02 240);
+  --color-card-foreground: oklch(98% 0.01 240);
+  --color-popover: oklch(17% 0.02 240);
+  --color-popover-foreground: oklch(98% 0.01 240);
+
+  /* Sidebar */
+  --color-sidebar: oklch(12% 0.02 240);
+  --color-sidebar-foreground: oklch(85% 0.01 240);
+  --color-sidebar-accent: oklch(20% 0.03 240);
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+
+  /* Spacing */
+  --spacing-0\.5: 0.125rem;
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+  --spacing-112: 28rem;
+  --spacing-128: 32rem;
+
+  /* Border radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+
+  /* Shadows */
+  --shadow-glow: 0 0 20px oklch(70% 0.18 200 / 0.3);
+  --shadow-glow-accent: 0 0 20px oklch(75% 0.2 145 / 0.3);
+
+  /* Animations */
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-slide-down: slide-down 0.3s ease-out;
+  --animate-scale-in: scale-in 0.2s ease-out;
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+  --animate-theme-transition: theme-transition 0.5s ease-in-out;
+}
+
+/* Light mode theme overrides */
+.light {
+  --color-background: oklch(98% 0.01 240);
+  --color-foreground: oklch(15% 0.02 240);
+  --color-muted: oklch(92% 0.01 240);
+  --color-muted-foreground: oklch(45% 0.02 240);
+  --color-border: oklch(85% 0.01 240);
+  --color-input: oklch(95% 0.01 240);
+  --color-ring: oklch(60% 0.15 240);
+
+  --color-primary: oklch(55% 0.2 200);
+  --color-primary-foreground: oklch(98% 0.01 200);
+
+  --color-secondary: oklch(40% 0.1 120);
+  --color-secondary-foreground: oklch(98% 0.01 120);
+
+  --color-accent: oklch(55% 0.2 145);
+  --color-accent-foreground: oklch(98% 0.01 145);
+
+  --color-card: oklch(98% 0.01 240);
+  --color-card-foreground: oklch(15% 0.02 240);
+  --color-popover: oklch(98% 0.01 240);
+  --color-popover-foreground: oklch(15% 0.02 240);
+
+  --color-editor-bg: oklch(98% 0.01 240);
+  --color-editor-gutter: oklch(95% 0.01 240);
+  --color-editor-line: oklch(96% 0.01 240);
+  --color-editor-selection: oklch(85% 0.05 200);
+
+  --color-sidebar: oklch(96% 0.01 240);
+  --color-sidebar-foreground: oklch(25% 0.02 240);
+  --color-sidebar-accent: oklch(92% 0.02 240);
+}
+
+/* Keyframe animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slide-down {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px oklch(70% 0.18 200 / 0.3); }
+  50% { box-shadow: 0 0 25px oklch(70% 0.18 200 / 0.6); }
+}
+
+@keyframes theme-transition {
+  0% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(0.98); filter: brightness(1.1); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+/* Page transitions */
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Layout transitions */
+.layout-enter-active,
+.layout-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.layout-enter-from,
+.layout-leave-to {
+  opacity: 0;
+  filter: blur(4px);
+}
+
+/* Theme transition for entire app */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Global styles */
+html {
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-muted) transparent;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted-foreground);
+}
+
+/* Code font styling */
+code, pre, .font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Focus visible styles */
+:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+/* Selection styles */
+::selection {
+  background-color: var(--color-editor-selection);
+}
+
+/* Utility classes for programming aesthetics */
+.terminal-glow {
+  text-shadow: 0 0 10px currentColor;
+}
+
+.code-block {
+  background-color: var(--color-editor-bg);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.syntax-keyword { color: var(--color-syntax-keyword); }
+.syntax-string { color: var(--color-syntax-string); }
+.syntax-number { color: var(--color-syntax-number); }
+.syntax-function { color: var(--color-syntax-function); }
+.syntax-comment { color: var(--color-syntax-comment); }
+.syntax-variable { color: var(--color-syntax-variable); }
+
+/* Status indicators */
+.status-online {
+  background-color: var(--color-success);
+  box-shadow: 0 0 8px var(--color-success);
+}
+
+.status-offline {
+  background-color: var(--color-destructive);
+}
+
+.status-away {
+  background-color: var(--color-warning);
+}
+
+/* Connection status pulse */
+.connection-pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
