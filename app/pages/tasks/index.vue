@@ -64,75 +64,14 @@
 
       <!-- Kanban Board View -->
       <div v-else-if="view === 'board'" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div
+        <KanbanColumn
           v-for="(statusTasks, statusKey) in tasksByStatus"
           :key="statusKey"
-          class="space-y-3"
-        >
-          <div class="flex items-center justify-between px-3 py-2 bg-muted/50 rounded-lg">
-            <h3 class="font-semibold capitalize">{{ statusKey.replace('_', ' ') }}</h3>
-            <UBadge variant="subtle">{{ statusTasks.length }}</UBadge>
-          </div>
-
-          <!-- Drop Zone -->
-          <div
-            :ref="(el) => setupDropZone(el as HTMLElement, statusKey)"
-            class="drop-zone min-h-[200px] space-y-3 p-2 border-2 border-dashed border-transparent rounded-lg"
-            :class="{ 'drop-indicator': isDropZoneActive(statusKey) }"
-          >
-            <TransitionGroup name="task-card" tag="div" class="space-y-3">
-              <!-- Draggable Task Cards -->
-              <div
-                v-for="task in statusTasks"
-                :key="task.id"
-                :ref="(el) => setupDraggable(el as HTMLElement, task, statusKey)"
-                class="task-card"
-                draggable="true"
-              >
-                <UCard
-                  class="cursor-grab active:cursor-grabbing hover:shadow-lg"
-                  @click.stop="navigateTo(`/tasks/${task.id}`)"
-                >
-                  <div class="space-y-2">
-                    <div class="flex items-start justify-between">
-                      <div class="flex items-center gap-2">
-                        <UIcon name="i-heroicons-bars-3" class="text-muted cursor-grab" />
-                        <h4 class="font-medium">{{ task.name }}</h4>
-                      </div>
-                      <UBadge
-                        v-if="task.priority"
-                        :color="getPriorityColor(task.priority)"
-                        variant="subtle"
-                        size="sm"
-                      >
-                        {{ task.priority }}
-                      </UBadge>
-                    </div>
-
-                    <p v-if="task.description" class="text-sm text-muted line-clamp-2">
-                      {{ task.description }}
-                    </p>
-
-                    <div class="flex items-center justify-between text-xs text-muted">
-                      <div v-if="task.assignedTo?.length" class="flex items-center gap-1">
-                        <UIcon name="i-heroicons-user" />
-                        <span>{{ task.assignedTo.length }}</span>
-                      </div>
-                      <div v-if="task.dueDate" class="flex items-center gap-1">
-                        <UIcon name="i-heroicons-calendar" />
-                        <span>{{ formatDueDate(task.dueDate) }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </UCard>
-              </div>
-            </TransitionGroup>
-
-            <div v-if="statusTasks.length === 0" class="text-center py-8 text-muted text-sm">
-              Drop tasks here
-            </div>
-          </div>
-        </div>
+          :status-key="String(statusKey)"
+          :tasks="statusTasks"
+          @task-dropped="handleTaskDrop"
+          @task-click="(task) => navigateTo(`/tasks/${task.id}`)"
+        />
       </div>
 
       <!-- List View -->
@@ -265,7 +204,6 @@ definePageMeta({
 })
 
 const { tasks, tasksByStatus, loading, error, fetchTasks, createTask, updateTaskStatus } = useTasks()
-const { useDraggable, useDroppable } = useDragAndDrop()
 const toast = useToast()
 const route = useRoute()
 
@@ -395,73 +333,27 @@ const handleCreateTask = async () => {
   }
 }
 
-// Drag and Drop Setup
-const dropZones = new Map<string, any>()
-const draggables = new Map<string, any>()
+// Handle task drop from KanbanColumn
+const handleTaskDrop = async (task: Task, fromStatus: string, toStatus: string) => {
+  if (fromStatus === toStatus) return // Same column, no action needed
 
-const setupDropZone = (el: HTMLElement | null, statusKey: string) => {
-  if (!el || dropZones.has(statusKey)) return
+  try {
+    // Update task status
+    await updateTaskStatus(task.id, toStatus as any)
 
-  const dropZone = useDroppable({
-    id: statusKey,
-    accepts: ['task'],
-    onDrop: async (task: Task, fromZone: string | null) => {
-      if (fromZone === statusKey) return // Same column, no action needed
-
-      try {
-        // Update task status
-        await updateTaskStatus(task.id, statusKey as any)
-
-        toast.add({
-          title: 'Task updated',
-          description: `Task moved to ${statusKey.replace('_', ' ')}`,
-          color: 'green',
-          timeout: 2000,
-        })
-      } catch (err: any) {
-        toast.add({
-          title: 'Error',
-          description: err.message || 'Failed to update task',
-          color: 'red',
-        })
-      }
-    },
-  })
-
-  dropZone.elementRef.value = el
-  el.addEventListener('dragover', dropZone.handleDragOver)
-  el.addEventListener('dragenter', dropZone.handleDragEnter)
-  el.addEventListener('dragleave', dropZone.handleDragLeave)
-  el.addEventListener('drop', dropZone.handleDrop)
-
-  dropZones.set(statusKey, dropZone)
-}
-
-const setupDraggable = (el: HTMLElement | null, task: Task, statusKey: string) => {
-  if (!el) return
-
-  const draggableKey = `${task.id}-${statusKey}`
-  if (draggables.has(draggableKey)) return
-
-  const draggable = useDraggable(task, 'task', statusKey, {
-    onDragStart: (task: Task) => {
-      // Optional: Add visual feedback
-    },
-    onDragEnd: (task: Task) => {
-      // Optional: Cleanup
-    },
-  })
-
-  draggable.elementRef.value = el
-  el.addEventListener('dragstart', draggable.handleDragStart)
-  el.addEventListener('dragend', draggable.handleDragEnd)
-
-  draggables.set(draggableKey, draggable)
-}
-
-const isDropZoneActive = (statusKey: string) => {
-  const dropZone = dropZones.get(statusKey)
-  return dropZone?.isOver?.value || false
+    toast.add({
+      title: 'Task updated',
+      description: `Task moved to ${toStatus.replace('_', ' ')}`,
+      color: 'green',
+      timeout: 2000,
+    })
+  } catch (err: any) {
+    toast.add({
+      title: 'Error',
+      description: err.message || 'Failed to update task',
+      color: 'red',
+    })
+  }
 }
 
 // Load tasks on mount

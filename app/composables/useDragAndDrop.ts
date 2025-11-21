@@ -1,356 +1,387 @@
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+/**
+ * Enhanced Drag and Drop Composable
+ * Implements a vue-dnd-kit compatible API with native pointer events
+ * for better touch/mobile support
+ */
+import { ref, reactive, computed, onMounted, onUnmounted, type Ref } from 'vue'
 
+// Types
 export interface DragState {
   isDragging: boolean
   draggedItem: any | null
   draggedFrom: string | null
   currentDropZone: string | null
-  dragPreview: { x: number; y: number } | null
+  dragPosition: { x: number; y: number }
 }
 
-export interface DropZoneConfig {
+export interface UseDraggableOptions<T = any> {
   id: string
-  accepts: string[]
-  onDrop: (item: any, fromZone: string | null) => void
+  data?: T
+  disabled?: boolean
 }
 
-// Global drag state for cross-component communication
+export interface UseDroppableOptions {
+  id: string
+  disabled?: boolean
+  onDrop?: (data: any, sourceId: string | null) => void
+  onDragEnter?: () => void
+  onDragLeave?: () => void
+}
+
+// Global drag state - reactive across all components
 const globalDragState = reactive<DragState>({
   isDragging: false,
   draggedItem: null,
   draggedFrom: null,
   currentDropZone: null,
-  dragPreview: null,
+  dragPosition: { x: 0, y: 0 },
 })
 
-export const useDragAndDrop = () => {
-  const draggedElement = ref<HTMLElement | null>(null)
-  const ghostElement = ref<HTMLElement | null>(null)
-  const mousePosition = ref({ x: 0, y: 0 })
+// Track active drop zones
+const dropZones = new Map<string, UseDroppableOptions>()
 
-  // Add drag styles dynamically
-  const addDragStyles = () => {
-    if (typeof document === 'undefined') return
+// CSS styles for drag and drop
+const dragStyles = `
+/* Dragging state */
+.dnd-dragging {
+  user-select: none;
+  touch-action: none;
+}
 
-    const styleId = 'kanban-drag-styles'
-    if (document.getElementById(styleId)) return
+.dnd-draggable {
+  cursor: grab;
+  touch-action: none;
+}
 
-    const style = document.createElement('style')
-    style.id = styleId
-    style.textContent = `
-      /* Dragging state */
-      .dragging-active {
-        user-select: none;
-        cursor: grabbing !important;
-      }
+.dnd-draggable:active {
+  cursor: grabbing;
+}
 
-      .task-card-dragging {
-        opacity: 0.5;
-        transform: scale(0.95) rotate(2deg);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-      }
+.dnd-draggable-dragging {
+  opacity: 0.4;
+  transform: scale(0.98);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-      .task-card-drag-over {
-        transform: translateY(4px);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      }
+/* Drop zone styles */
+.dnd-droppable {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-      /* Drop zone animations */
-      .drop-zone {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-      }
+.dnd-droppable-over {
+  background-color: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  transform: scale(1.005);
+}
 
-      .drop-zone-active {
-        background-color: rgba(59, 130, 246, 0.05);
-        border-color: rgba(59, 130, 246, 0.3) !important;
-        transform: scale(1.01);
-        box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.2);
-      }
+.dnd-droppable-active {
+  border-color: rgba(34, 197, 94, 0.3) !important;
+}
 
-      .drop-zone-valid {
-        background-color: rgba(34, 197, 94, 0.05);
-        border-color: rgba(34, 197, 94, 0.4) !important;
-      }
+/* Ghost element (drag preview) */
+.dnd-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10000;
+  transform: rotate(2deg) scale(1.02);
+  opacity: 0.95;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
 
-      .drop-zone-invalid {
-        background-color: rgba(239, 68, 68, 0.05);
-        border-color: rgba(239, 68, 68, 0.4) !important;
-      }
+/* List animations */
+.dnd-list-move {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-      /* Task card animations */
-      .task-card {
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        will-change: transform, opacity;
-      }
+.dnd-list-enter-active,
+.dnd-list-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-      .task-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      }
+.dnd-list-enter-from {
+  opacity: 0;
+  transform: scale(0.9) translateY(-8px);
+}
 
-      .task-card-enter-active,
-      .task-card-leave-active {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
+.dnd-list-leave-to {
+  opacity: 0;
+  transform: scale(0.9) translateY(8px);
+}
 
-      .task-card-enter-from {
-        opacity: 0;
-        transform: scale(0.9) translateY(-10px);
-      }
+/* Drop ripple effect */
+@keyframes dnd-ripple {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
 
-      .task-card-leave-to {
-        opacity: 0;
-        transform: scale(0.9) translateY(10px);
-      }
+.dnd-ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.25) 0%, transparent 70%);
+  animation: dnd-ripple 0.5s cubic-bezier(0, 0, 0.2, 1);
+  pointer-events: none;
+}
 
-      /* Drag preview (ghost) */
-      .drag-ghost {
-        position: fixed;
-        pointer-events: none;
-        z-index: 9999;
-        transform: rotate(3deg);
-        opacity: 0.9;
-        transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-      }
+/* Touch feedback */
+@media (hover: none) {
+  .dnd-draggable:active {
+    transform: scale(0.97);
+    transition: transform 0.1s ease;
+  }
+}
+`
 
-      /* Smooth list transitions */
-      .task-list-move {
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
+// Inject styles once
+let stylesInjected = false
+const injectStyles = () => {
+  if (stylesInjected || typeof document === 'undefined') return
+  const styleEl = document.createElement('style')
+  styleEl.id = 'vue-dnd-kit-styles'
+  styleEl.textContent = dragStyles
+  document.head.appendChild(styleEl)
+  stylesInjected = true
+}
 
-      /* Pulse animation for drop indicator */
-      @keyframes pulse-glow {
-        0%, 100% {
-          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
-        }
-        50% {
-          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-        }
-      }
+/**
+ * Draggable composable - makes an element draggable
+ */
+export const useDraggable = <T = any>(options: UseDraggableOptions<T>) => {
+  const elementRef = ref<HTMLElement | null>(null)
+  const isDragging = ref(false)
+  const initialPosition = ref({ x: 0, y: 0 })
 
-      .drop-indicator {
-        animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-      }
+  let ghostEl: HTMLElement | null = null
 
-      /* Ripple effect on drop */
-      @keyframes ripple {
-        0% {
-          transform: scale(0);
-          opacity: 1;
-        }
-        100% {
-          transform: scale(2);
-          opacity: 0;
-        }
-      }
-
-      .drop-ripple {
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        background: radial-gradient(circle, rgba(34, 197, 94, 0.3) 0%, transparent 70%);
-        animation: ripple 0.6s cubic-bezier(0, 0, 0.2, 1);
-        pointer-events: none;
-      }
-    `
-    document.head.appendChild(style)
+  const createGhost = (sourceEl: HTMLElement, x: number, y: number) => {
+    ghostEl = sourceEl.cloneNode(true) as HTMLElement
+    ghostEl.className = `${sourceEl.className} dnd-ghost`
+    ghostEl.style.width = `${sourceEl.offsetWidth}px`
+    ghostEl.style.left = `${x - sourceEl.offsetWidth / 2}px`
+    ghostEl.style.top = `${y - sourceEl.offsetHeight / 2}px`
+    document.body.appendChild(ghostEl)
   }
 
-  // Track mouse position for ghost element
-  const updateMousePosition = (e: MouseEvent) => {
-    mousePosition.value = { x: e.clientX, y: e.clientY }
+  const moveGhost = (x: number, y: number) => {
+    if (!ghostEl || !elementRef.value) return
+    ghostEl.style.left = `${x - elementRef.value.offsetWidth / 2}px`
+    ghostEl.style.top = `${y - elementRef.value.offsetHeight / 2}px`
   }
 
-  // Create draggable item
-  const useDraggable = <T = any>(
-    item: T,
-    type: string,
-    sourceZone: string,
-    options: {
-      onDragStart?: (item: T) => void
-      onDragEnd?: (item: T) => void
-      disabled?: boolean
-    } = {}
-  ) => {
-    const elementRef = ref<HTMLElement | null>(null)
-    const isDragging = ref(false)
-
-    const handleDragStart = (e: DragEvent) => {
-      if (options.disabled) {
-        e.preventDefault()
-        return
-      }
-
-      if (!e.dataTransfer) return
-
-      isDragging.value = true
-      globalDragState.isDragging = true
-      globalDragState.draggedItem = item
-      globalDragState.draggedFrom = sourceZone
-      draggedElement.value = e.target as HTMLElement
-
-      // Set drag data
-      e.dataTransfer.effectAllowed = 'move'
-      e.dataTransfer.setData('application/json', JSON.stringify({
-        item,
-        type,
-        sourceZone,
-      }))
-
-      // Add dragging class
-      if (typeof document !== 'undefined') {
-        document.body.classList.add('dragging-active')
-        ;(e.target as HTMLElement).classList.add('task-card-dragging')
-      }
-
-      options.onDragStart?.(item)
-    }
-
-    const handleDragEnd = (e: DragEvent) => {
-      isDragging.value = false
-      globalDragState.isDragging = false
-      globalDragState.draggedItem = null
-      globalDragState.draggedFrom = null
-      globalDragState.currentDropZone = null
-      draggedElement.value = null
-
-      // Remove dragging classes
-      if (typeof document !== 'undefined') {
-        document.body.classList.remove('dragging-active')
-        ;(e.target as HTMLElement).classList.remove('task-card-dragging')
-      }
-
-      options.onDragEnd?.(item)
-    }
-
-    return {
-      elementRef,
-      isDragging,
-      handleDragStart,
-      handleDragEnd,
+  const removeGhost = () => {
+    if (ghostEl) {
+      ghostEl.remove()
+      ghostEl = null
     }
   }
 
-  // Create droppable zone
-  const useDroppable = <T = any>(config: DropZoneConfig) => {
-    const elementRef = ref<HTMLElement | null>(null)
-    const isOver = ref(false)
-    const isValid = ref(false)
+  const handlePointerDown = (e: PointerEvent) => {
+    if (options.disabled || !elementRef.value) return
 
-    const handleDragOver = (e: DragEvent) => {
-      e.preventDefault()
-      if (!e.dataTransfer) return
+    // Ignore if not primary button (left click or touch)
+    if (e.button !== 0) return
 
-      // Check if we accept this type
-      try {
-        const data = e.dataTransfer.getData('application/json')
-        if (!data) {
-          e.dataTransfer.dropEffect = 'none'
-          return
-        }
+    e.preventDefault()
+    initialPosition.value = { x: e.clientX, y: e.clientY }
 
-        const { type } = JSON.parse(data)
-        const canDrop = config.accepts.includes(type)
+    // Start drag after small movement threshold (prevents accidental drags)
+    const startDrag = (moveE: PointerEvent) => {
+      const dx = moveE.clientX - initialPosition.value.x
+      const dy = moveE.clientY - initialPosition.value.y
+      const distance = Math.sqrt(dx * dx + dy * dy)
 
-        isValid.value = canDrop
-        e.dataTransfer.dropEffect = canDrop ? 'move' : 'none'
-
-        globalDragState.currentDropZone = config.id
-      } catch (err) {
-        e.dataTransfer.dropEffect = 'none'
+      if (distance > 5) {
+        document.removeEventListener('pointermove', startDrag)
+        inititateDrag(moveE)
       }
     }
 
-    const handleDragEnter = (e: DragEvent) => {
-      e.preventDefault()
-      isOver.value = true
+    const cancelDrag = () => {
+      document.removeEventListener('pointermove', startDrag)
+      document.removeEventListener('pointerup', cancelDrag)
+    }
 
-      if (elementRef.value) {
-        elementRef.value.classList.add('drop-zone-active')
-        if (isValid.value) {
-          elementRef.value.classList.add('drop-zone-valid')
-        }
+    document.addEventListener('pointermove', startDrag)
+    document.addEventListener('pointerup', cancelDrag)
+  }
+
+  const inititateDrag = (e: PointerEvent) => {
+    if (!elementRef.value) return
+
+    isDragging.value = true
+    globalDragState.isDragging = true
+    globalDragState.draggedItem = options.data
+    globalDragState.draggedFrom = options.id
+    globalDragState.dragPosition = { x: e.clientX, y: e.clientY }
+
+    // Add classes
+    document.body.classList.add('dnd-dragging')
+    elementRef.value.classList.add('dnd-draggable-dragging')
+
+    // Create ghost
+    createGhost(elementRef.value, e.clientX, e.clientY)
+
+    // Capture pointer for reliable tracking
+    elementRef.value.setPointerCapture(e.pointerId)
+
+    // Listen for move and end
+    document.addEventListener('pointermove', handlePointerMove)
+    document.addEventListener('pointerup', handlePointerUp)
+  }
+
+  const handlePointerMove = (e: PointerEvent) => {
+    if (!isDragging.value) return
+
+    globalDragState.dragPosition = { x: e.clientX, y: e.clientY }
+    moveGhost(e.clientX, e.clientY)
+
+    // Find drop zone under cursor
+    const elementsUnder = document.elementsFromPoint(e.clientX, e.clientY)
+    let foundDropZone: string | null = null
+
+    for (const el of elementsUnder) {
+      const dropId = (el as HTMLElement).dataset?.droppableId
+      if (dropId && dropZones.has(dropId)) {
+        foundDropZone = dropId
+        break
       }
     }
 
-    const handleDragLeave = (e: DragEvent) => {
-      // Only handle if we're leaving the actual drop zone element
-      const target = e.currentTarget as HTMLElement
-      const relatedTarget = e.relatedTarget as HTMLElement
-
-      if (!target.contains(relatedTarget)) {
-        isOver.value = false
-
-        if (elementRef.value) {
-          elementRef.value.classList.remove('drop-zone-active', 'drop-zone-valid', 'drop-zone-invalid')
-        }
+    // Update current drop zone
+    if (foundDropZone !== globalDragState.currentDropZone) {
+      // Leave previous
+      if (globalDragState.currentDropZone) {
+        const prevZone = dropZones.get(globalDragState.currentDropZone)
+        prevZone?.onDragLeave?.()
       }
-    }
 
-    const handleDrop = (e: DragEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-
-      if (!e.dataTransfer) return
-
-      try {
-        const data = JSON.parse(e.dataTransfer.getData('application/json'))
-        const { item, type, sourceZone } = data
-
-        if (config.accepts.includes(type)) {
-          // Add ripple effect
-          if (elementRef.value) {
-            const ripple = document.createElement('div')
-            ripple.className = 'drop-ripple'
-            elementRef.value.appendChild(ripple)
-            setTimeout(() => ripple.remove(), 600)
-          }
-
-          config.onDrop(item, sourceZone)
-        }
-      } catch (err) {
-        console.error('Failed to handle drop:', err)
-      } finally {
-        isOver.value = false
-        if (elementRef.value) {
-          elementRef.value.classList.remove('drop-zone-active', 'drop-zone-valid', 'drop-zone-invalid')
-        }
+      // Enter new
+      globalDragState.currentDropZone = foundDropZone
+      if (foundDropZone) {
+        const newZone = dropZones.get(foundDropZone)
+        newZone?.onDragEnter?.()
       }
-    }
-
-    return {
-      elementRef,
-      isOver,
-      isValid,
-      handleDragOver,
-      handleDragEnter,
-      handleDragLeave,
-      handleDrop,
     }
   }
 
-  // Initialize drag and drop system
+  const handlePointerUp = (e: PointerEvent) => {
+    if (!isDragging.value) return
+
+    // Handle drop
+    if (globalDragState.currentDropZone) {
+      const dropZone = dropZones.get(globalDragState.currentDropZone)
+      if (dropZone) {
+        dropZone.onDrop?.(globalDragState.draggedItem, globalDragState.draggedFrom)
+      }
+    }
+
+    // Cleanup
+    isDragging.value = false
+    globalDragState.isDragging = false
+    globalDragState.draggedItem = null
+    globalDragState.draggedFrom = null
+    globalDragState.currentDropZone = null
+
+    document.body.classList.remove('dnd-dragging')
+    elementRef.value?.classList.remove('dnd-draggable-dragging')
+    removeGhost()
+
+    document.removeEventListener('pointermove', handlePointerMove)
+    document.removeEventListener('pointerup', handlePointerUp)
+  }
+
   onMounted(() => {
-    if (typeof window !== 'undefined') {
-      addDragStyles()
-      document.addEventListener('mousemove', updateMousePosition)
+    injectStyles()
+    if (elementRef.value) {
+      elementRef.value.classList.add('dnd-draggable')
+      elementRef.value.addEventListener('pointerdown', handlePointerDown)
     }
   })
 
   onUnmounted(() => {
-    if (typeof window !== 'undefined') {
-      document.removeEventListener('mousemove', updateMousePosition)
-      document.body.classList.remove('dragging-active')
+    if (elementRef.value) {
+      elementRef.value.removeEventListener('pointerdown', handlePointerDown)
+    }
+    removeGhost()
+  })
+
+  return {
+    elementRef,
+    isDragging: computed(() => isDragging.value),
+    attributes: {
+      'data-draggable-id': options.id,
+    },
+  }
+}
+
+/**
+ * Droppable composable - creates a drop zone
+ */
+export const useDroppable = (options: UseDroppableOptions) => {
+  const elementRef = ref<HTMLElement | null>(null)
+  const isOver = ref(false)
+
+  // Register drop zone
+  onMounted(() => {
+    injectStyles()
+    dropZones.set(options.id, {
+      ...options,
+      onDragEnter: () => {
+        isOver.value = true
+        elementRef.value?.classList.add('dnd-droppable-over')
+        options.onDragEnter?.()
+      },
+      onDragLeave: () => {
+        isOver.value = false
+        elementRef.value?.classList.remove('dnd-droppable-over')
+        options.onDragLeave?.()
+      },
+      onDrop: (data, sourceId) => {
+        isOver.value = false
+        elementRef.value?.classList.remove('dnd-droppable-over')
+
+        // Add ripple effect
+        if (elementRef.value) {
+          const ripple = document.createElement('div')
+          ripple.className = 'dnd-ripple'
+          elementRef.value.appendChild(ripple)
+          setTimeout(() => ripple.remove(), 500)
+        }
+
+        options.onDrop?.(data, sourceId)
+      },
+    })
+
+    if (elementRef.value) {
+      elementRef.value.classList.add('dnd-droppable')
+      elementRef.value.dataset.droppableId = options.id
     }
   })
 
+  onUnmounted(() => {
+    dropZones.delete(options.id)
+  })
+
+  return {
+    elementRef,
+    isOver: computed(() => isOver.value),
+    isActive: computed(() => globalDragState.isDragging),
+    attributes: {
+      'data-droppable-id': options.id,
+    },
+  }
+}
+
+/**
+ * Main composable export
+ */
+export const useDragAndDrop = () => {
   return {
     globalDragState,
     useDraggable,
     useDroppable,
-    mousePosition,
   }
 }
+
+export default useDragAndDrop
